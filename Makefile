@@ -1,18 +1,34 @@
 # Ion OS - Top-Level Build
 
-.PHONY: all clean boot disk run
+.PHONY: all clean boot busybox initramfs rootfs disk run
 
-all: boot
+BUILD_DIR = build
+KERNEL   ?= /boot/arch/vmlinuz-linux
+
+all: disk
 
 boot:
 	$(MAKE) -C boot
 
-disk: boot
-	./scripts/mkdisk.sh
+busybox:
+	./scripts/build-busybox.sh
+
+initramfs: busybox
+	./scripts/mk-initramfs.sh
+
+rootfs: busybox
+	./scripts/mk-rootfs.sh
+
+disk: boot initramfs rootfs
+	sudo ./scripts/mkdisk.sh \
+		--kernel $(KERNEL) \
+		--initrd $(BUILD_DIR)/initramfs.img \
+		--rootfs $(BUILD_DIR)/rootfs
 
 run: disk
 	./scripts/run-qemu.sh
 
 clean:
 	$(MAKE) -C boot clean
+	sudo rm -rf $(BUILD_DIR) || rm -rf $(BUILD_DIR)
 	rm -f ion-os.img
