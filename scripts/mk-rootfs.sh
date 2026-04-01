@@ -57,6 +57,7 @@ PACKAGES=(
     systemd
     systemd-libs
     dbus
+    expat
     glibc
     gcc-libs
     util-linux-libs
@@ -135,6 +136,36 @@ ln -sf ../lib/systemd/systemd "$ROOTFS_DIR/usr/sbin/init"
 
 # Set default target to multi-user
 ln -sf /usr/lib/systemd/system/multi-user.target "$ROOTFS_DIR/etc/systemd/system/default.target"
+
+# Create dbus.service (Arch's dbus package doesn't ship one; dbus-broker does,
+# but we use dbus-daemon directly to avoid the extra dependency)
+cat > "$ROOTFS_DIR/usr/lib/systemd/system/dbus.service" << 'EOF'
+[Unit]
+Description=D-Bus System Message Bus
+Documentation=man:dbus-daemon(1)
+DefaultDependencies=false
+After=dbus.socket
+Before=basic.target shutdown.target
+Requires=dbus.socket
+Conflicts=shutdown.target
+
+[Service]
+Type=notify
+Sockets=dbus.socket
+RuntimeDirectory=dbus
+OOMScoreAdjust=-900
+LimitNOFILE=16384
+ProtectSystem=full
+PrivateTmp=true
+PrivateDevices=true
+ExecStart=/usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation
+ExecReload=/usr/bin/dbus-send --print-reply --system --type=method_call --dest=org.freedesktop.DBus / org.freedesktop.DBus.ReloadConfig
+EOF
+
+# Ensure /run/dbus exists before the socket tries to bind
+cat >> "$ROOTFS_DIR/usr/lib/tmpfiles.d/dbus.conf" << 'EOF'
+d /run/dbus 0755 dbus dbus -
+EOF
 
 # Enable serial console getty
 ln -sf /usr/lib/systemd/system/serial-getty@.service \
