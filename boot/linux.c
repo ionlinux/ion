@@ -3,6 +3,7 @@
 #include "linux.h"
 #include "loader.h"
 #include "console.h"
+#include "initrd.h"
 #include "config.h"
 
 static UINTN strlen_a(CHAR8 *s)
@@ -52,8 +53,6 @@ EFI_STATUS linux_load_and_boot(
     CHAR16 *cmdline_ucs2 = NULL;
     UINTN cmdline_ucs2_size = 0;
     EFI_DEVICE_PATH *kernel_path_dp = NULL;
-
-    (void)initrd_path; /* TODO: initrd via LINUX_EFI_INITRD_MEDIA_GUID */
 
     /* Step 1: Load the kernel file into memory */
     status = load_file(kernel_path, &kernel_buf, &kernel_size);
@@ -128,7 +127,17 @@ EFI_STATUS linux_load_and_boot(
     }
 
     /*
-     * Step 4: Start the kernel.
+     * Step 4: Register initrd via LoadFile2 protocol.
+     * The kernel's EFI stub discovers the initrd through this.
+     */
+    if (initrd_path != NULL) {
+        status = initrd_register(initrd_path);
+        if (EFI_ERROR(status))
+            print(L"WARNING: Continuing without initrd\r\n");
+    }
+
+    /*
+     * Step 5: Start the kernel.
      *
      * The kernel's EFI stub will:
      *   - Parse the command line
@@ -147,6 +156,8 @@ EFI_STATUS linux_load_and_boot(
     /* If StartImage returns, the kernel exited or failed */
     print(L"ERROR: Kernel returned from StartImage\r\n");
     print_status(L"  Status", status);
+
+    initrd_unregister();
 
     if (cmdline_ucs2)
         FreePool(cmdline_ucs2);

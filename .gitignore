@@ -1,4 +1,5 @@
-**/*.o
-**/*.img
-**/*.efi
-**/*.so
+build/
+ion-os.img
+boot/*.o
+boot/*.so
+boot/*.efi

@@ -3,15 +3,18 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
+BUILD_DIR="${PROJECT_DIR}/build"
 IMG="${PROJECT_DIR}/ion-os.img"
 EFI_FILE="${PROJECT_DIR}/boot/bootx64.efi"
 KERNEL_FILE=""
 INITRD_FILE=""
+ROOTFS_DIR=""
 
 while [[ $# -gt 0 ]]; do
     case $1 in
         --kernel) KERNEL_FILE="$2"; shift 2 ;;
         --initrd) INITRD_FILE="$2"; shift 2 ;;
+        --rootfs) ROOTFS_DIR="$2"; shift 2 ;;
         *) echo "Unknown option: $1"; exit 1 ;;
     esac
 done
@@ -21,48 +24,109 @@ if [[ ! -f "$EFI_FILE" ]]; then
     exit 1
 fi
 
-echo "Creating disk image: $IMG"
+# Determine image size based on whether we have a rootfs
+if [[ -n "$ROOTFS_DIR" && -d "$ROOTFS_DIR" ]]; then
+    IMG_SIZE_MB=768
+    ESP_END_MIB=65
+    ROOT_END_MIB=767
+    HAS_ROOTFS=1
+else
+    IMG_SIZE_MB=64
+    ESP_END_MIB=63
+    HAS_ROOTFS=0
+fi
 
-# Create a 64MB disk image
-dd if=/dev/zero of="$IMG" bs=1M count=64 status=none
+echo "Creating disk image: $IMG (${IMG_SIZE_MB}MB)"
 
-# Create GPT partition table with an EFI System Partition
-parted -s "$IMG" \
-    mklabel gpt \
-    mkpart ESP fat32 1MiB 63MiB \
-    set 1 esp on
+# Create disk image
+dd if=/dev/zero of="$IMG" bs=1M count="$IMG_SIZE_MB" status=none
 
-# Create a temporary FAT32 image for the partition
-PART_OFFSET=$((1 * 1024 * 1024))
+# Create GPT partition table
+if [[ "$HAS_ROOTFS" == "1" ]]; then
+    parted -s "$IMG" \
+        mklabel gpt \
+        mkpart ESP fat32 1MiB "${ESP_END_MIB}MiB" \
+        set 1 esp on \
+        mkpart root ext4 "${ESP_END_MIB}MiB" "${ROOT_END_MIB}MiB"
+else
+    parted -s "$IMG" \
+        mklabel gpt \
+        mkpart ESP fat32 1MiB "${ESP_END_MIB}MiB" \
+        set 1 esp on
+fi
+
+# ============================================================
+# Create and populate ESP (FAT32)
+# ============================================================
+ESP_SIZE_MB=$((ESP_END_MIB - 1))
 FAT_IMG=$(mktemp /tmp/ion-esp-XXXXXX.img)
-trap "rm -f $FAT_IMG" EXIT
+CLEANUP_FILES="$FAT_IMG"
+trap "rm -f $CLEANUP_FILES" EXIT
 
-dd if=/dev/zero of="$FAT_IMG" bs=1M count=62 status=none
+dd if=/dev/zero of="$FAT_IMG" bs=1M count="$ESP_SIZE_MB" status=none
 mkfs.fat -F 32 -n "ION-ESP" "$FAT_IMG" >/dev/null
 
-# Create directory structure and copy files using mtools
 export MTOOLS_SKIP_CHECK=1
 mmd -i "$FAT_IMG" ::/EFI
 mmd -i "$FAT_IMG" ::/EFI/BOOT
 mcopy -i "$FAT_IMG" "$EFI_FILE" ::/EFI/BOOT/BOOTX64.EFI
 
-# Copy kernel if provided
 if [[ -n "$KERNEL_FILE" && -f "$KERNEL_FILE" ]]; then
-    echo "Including kernel: $KERNEL_FILE"
+    echo "  Including kernel: $(basename "$KERNEL_FILE")"
     mcopy -i "$FAT_IMG" "$KERNEL_FILE" ::/vmlinuz
 fi
 
-# Copy initrd if provided
 if [[ -n "$INITRD_FILE" && -f "$INITRD_FILE" ]]; then
-    echo "Including initrd: $INITRD_FILE"
+    echo "  Including initrd: $(basename "$INITRD_FILE") ($(du -h "$INITRD_FILE" | cut -f1))"
     mcopy -i "$FAT_IMG" "$INITRD_FILE" ::/initramfs.img
 fi
 
-# Write FAT image into the partition area of the disk image
-dd if="$FAT_IMG" of="$IMG" bs=1 seek=$PART_OFFSET conv=notrunc status=none
+# Write ESP into disk image at partition 1 offset (1 MiB)
+dd if="$FAT_IMG" of="$IMG" bs=1M seek=1 conv=notrunc status=none
+
+# ============================================================
+# Create and populate ext4 root partition (if rootfs provided)
+# ============================================================
+if [[ "$HAS_ROOTFS" == "1" ]]; then
+    ROOT_SIZE_MB=$((ROOT_END_MIB - ESP_END_MIB))
+    ROOT_IMG=$(mktemp /tmp/ion-root-XXXXXX.img)
+    CLEANUP_FILES="$CLEANUP_FILES $ROOT_IMG"
+
+    echo "  Creating ext4 root partition (${ROOT_SIZE_MB}MB)..."
+    dd if=/dev/zero of="$ROOT_IMG" bs=1M count="$ROOT_SIZE_MB" status=none
+    mkfs.ext4 -q -L "ION-ROOT" "$ROOT_IMG"
+
+    echo "  Populating root filesystem (requires sudo for loop mount)..."
+    MOUNT_DIR=$(mktemp -d /tmp/ion-mount-XXXXXX)
+
+    sudo mount -o loop "$ROOT_IMG" "$MOUNT_DIR"
+    # Copy files, forcing root ownership for everything
+    sudo rsync -a --chown=0:0 "$ROOTFS_DIR/" "$MOUNT_DIR/"
+    # Shadow file needs restricted permissions
+    sudo chmod 640 "$MOUNT_DIR/etc/shadow"
+    # unix_chkpwd must be setuid root for PAM password authentication
+    sudo chmod 6755 "$MOUNT_DIR/usr/bin/unix_chkpwd"
+    # Ensure all binaries and libs are executable
+    sudo chmod -R a+rX "$MOUNT_DIR/usr/bin" "$MOUNT_DIR/usr/sbin" "$MOUNT_DIR/usr/lib"
+    # Run ldconfig inside the rootfs to generate ld.so.cache
+    if [[ -x "$MOUNT_DIR/usr/sbin/ldconfig" ]]; then
+        sudo chroot "$MOUNT_DIR" /usr/sbin/ldconfig 2>/dev/null || true
+    fi
+    sudo umount "$MOUNT_DIR"
+    rmdir "$MOUNT_DIR"
+
+    # Write root partition into disk image
+    dd if="$ROOT_IMG" of="$IMG" bs=1M seek="$ESP_END_MIB" conv=notrunc status=none
+fi
+
+# Ensure the disk image is owned by the calling user, not root
+if [[ -n "${SUDO_USER:-}" ]]; then
+    chown "${SUDO_UID:-$(id -u "$SUDO_USER")}:${SUDO_GID:-$(id -g "$SUDO_USER")}" "$IMG"
+fi
 
 echo "Disk image created: $IMG"
-echo "  EFI bootloader: /EFI/BOOT/BOOTX64.EFI"
-[[ -n "$KERNEL_FILE" ]] && echo "  Kernel:          /vmlinuz"
-[[ -n "$INITRD_FILE" ]] && echo "  Initrd:          /initramfs.img"
+echo "  Partition 1 (ESP):  /EFI/BOOT/BOOTX64.EFI"
+[[ -n "$KERNEL_FILE" ]] && echo "                      /vmlinuz"
+[[ -n "$INITRD_FILE" ]] && echo "                      /initramfs.img"
+[[ "$HAS_ROOTFS" == "1" ]] && echo "  Partition 2 (ext4): root filesystem (systemd + BusyBox)"
 echo "Done."

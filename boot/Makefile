@@ -57,7 +57,7 @@ OBJCOPY_SECTIONS = -j .text \
                    -j .eh_frame
 
 # Source files
-SRCS = main.c console.c loader.c linux.c memory.c
+SRCS = main.c console.c loader.c linux.c memory.c initrd.c
 OBJS = $(SRCS:.c=.o)
 
 # Output

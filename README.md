@@ -39,6 +39,18 @@ make boot
 ./scripts/run-qemu.sh
 ```
 
+## Build and boot into VM:
+
+Full boot chain:
+
+  - UEFI bootloader -> kernel + initramfs (LoadFile2) -> initramfs mounts ext4 -> switch_root -> systemd -> BusyBox login  -> root shell
+
+Commands:
+
+  - make run -- build everything and boot (requires sudo for disk image)
+  - make clean -- clean all build artifacts                                                                                
+  - Login: root / root
+
 ## Next steps
 
 - Build an initramfs
