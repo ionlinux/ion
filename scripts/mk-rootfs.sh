@@ -4,14 +4,8 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
 BUILD_DIR="${PROJECT_DIR}/build"
-BUSYBOX_BIN="${BUILD_DIR}/busybox"
 ROOTFS_DIR="${BUILD_DIR}/rootfs"
 PKG_CACHE="/var/cache/pacman/pkg"
-
-if [[ ! -f "$BUSYBOX_BIN" ]]; then
-    echo "Error: BusyBox not found. Run build-busybox.sh first."
-    exit 1
-fi
 
 echo "Creating root filesystem..."
 
@@ -27,33 +21,12 @@ ln -sf usr/lib  lib
 ln -sf usr/lib  lib64
 
 # ============================================================
-# Install BusyBox
-# ============================================================
-echo "Installing BusyBox..."
-cp "$BUSYBOX_BIN" "$ROOTFS_DIR/usr/bin/busybox"
-chmod 755 "$ROOTFS_DIR/usr/bin/busybox"
-
-# Create symlinks for all applets
-for applet in $("$BUSYBOX_BIN" --list 2>/dev/null); do
-    # Don't overwrite files that will come from systemd/util-linux
-    if [[ ! -e "$ROOTFS_DIR/usr/bin/$applet" && ! -e "$ROOTFS_DIR/usr/sbin/$applet" ]]; then
-        ln -sf busybox "$ROOTFS_DIR/usr/bin/$applet"
-    fi
-done
-
-# Move sbin-appropriate commands
-for cmd in mount umount reboot poweroff halt shutdown init mdev; do
-    if [[ -L "$ROOTFS_DIR/usr/bin/$cmd" ]]; then
-        mv "$ROOTFS_DIR/usr/bin/$cmd" "$ROOTFS_DIR/usr/sbin/$cmd" 2>/dev/null || true
-    fi
-done
-
-# ============================================================
-# Extract systemd and dependencies from Arch packages
+# Extract system packages from Arch Linux
 # ============================================================
 echo "Downloading system packages..."
 
 PACKAGES=(
+    # Core system
     systemd
     systemd-libs
     dbus
@@ -78,6 +51,28 @@ PACKAGES=(
     audit
     libcap-ng
     libxcrypt
+    # Userspace tools (replaces BusyBox)
+    coreutils
+    bash
+    shadow
+    grep
+    sed
+    gawk
+    procps-ng
+    findutils
+    # Dependencies for the above
+    readline
+    ncurses
+    gmp
+    mpfr
+    # pam_unix.so dependencies (NIS/RPC support compiled in by Arch)
+    libnsl
+    libtirpc
+    krb5
+    keyutils
+    e2fsprogs
+    openldap
+    cyrus-sasl
 )
 
 # Check which packages need downloading
@@ -171,19 +166,6 @@ EOF
 ln -sf /usr/lib/systemd/system/serial-getty@.service \
     "$ROOTFS_DIR/etc/systemd/system/getty.target.wants/serial-getty@ttyS0.service"
 
-# Override serial-getty to use BusyBox login (bypasses broken PAM)
-mkdir -p "$ROOTFS_DIR/etc/systemd/system/serial-getty@ttyS0.service.d"
-cat > "$ROOTFS_DIR/etc/systemd/system/serial-getty@ttyS0.service.d/autologin.conf" << 'EOF'
-[Service]
-ExecStart=
-ExecStart=-/usr/bin/agetty --noclear --login-program /usr/bin/busybox_login --keep-baud 115200,57600,38400,9600 - $TERM
-EOF
-
-cat > "$ROOTFS_DIR/usr/bin/busybox_login" << 'SCRIPT'
-#!/bin/sh
-exec /usr/bin/busybox login "$@"
-SCRIPT
-chmod 755 "$ROOTFS_DIR/usr/bin/busybox_login"
 
 # ============================================================
 # Configuration files
@@ -201,7 +183,7 @@ tmpfs         /run          tmpfs     defaults           0      0
 EOF
 
 cat > "$ROOTFS_DIR/etc/passwd" << 'EOF'
-root:x:0:0:root:/root:/bin/sh
+root:x:0:0:root:/root:/bin/bash
 nobody:x:65534:65534:Nobody:/:/usr/bin/nologin
 systemd-journal:x:190:190:systemd Journal:/:/usr/bin/nologin
 systemd-network:x:192:192:systemd Network Management:/:/usr/bin/nologin
@@ -260,20 +242,26 @@ EOF
 
 cat > "$ROOTFS_DIR/etc/shells" << 'EOF'
 /bin/sh
+/bin/bash
 EOF
+
+# Clean up package-installed PAM configs and securetty to start fresh
+rm -rf "$ROOTFS_DIR/etc/pam.d"
+rm -f "$ROOTFS_DIR/etc/securetty"
 
 # Minimal PAM config
 mkdir -p "$ROOTFS_DIR/etc/pam.d"
 cat > "$ROOTFS_DIR/etc/pam.d/other" << 'EOF'
-auth     sufficient pam_unix.so nullok
-account  sufficient pam_unix.so
-password sufficient pam_unix.so nullok
-session  sufficient pam_unix.so
+auth     required pam_unix.so nullok
+account  required pam_unix.so
+password required pam_unix.so nullok
+session  required pam_unix.so
 EOF
 
-# Copy for login service
-cp "$ROOTFS_DIR/etc/pam.d/other" "$ROOTFS_DIR/etc/pam.d/login"
-cp "$ROOTFS_DIR/etc/pam.d/other" "$ROOTFS_DIR/etc/pam.d/system-auth"
+# All PAM service names that login/agetty may reference
+for svc in login system-auth system-local-login system-login system-remote-login; do
+    cp "$ROOTFS_DIR/etc/pam.d/other" "$ROOTFS_DIR/etc/pam.d/$svc"
+done
 
 # ============================================================
 # Dynamic linker cache
