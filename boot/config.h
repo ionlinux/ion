@@ -3,7 +3,11 @@
 
 #define KERNEL_PATH      L"\\vmlinuz"
 #define INITRD_PATH      L"\\initramfs.img"
+#ifndef CMDLINE_OVERRIDE
 #define CMDLINE_DEFAULT  "console=ttyS0 earlyprintk=serial root=/dev/sda2 rootfstype=ext4 rootwait"
+#else
+#define CMDLINE_DEFAULT  CMDLINE_OVERRIDE
+#endif
 #define BOOTLOADER_NAME  L"Ion Boot Loader v0.1"
 #define LOADER_TYPE_ID   0xFF
 

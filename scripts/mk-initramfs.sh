@@ -41,6 +41,8 @@ PACKAGES=(
     libcap-ng
     pam
     zlib
+    coreutils
+    findutils
 )
 
 echo "Downloading packages for initramfs..."
@@ -101,6 +103,7 @@ SYSTEMD_BINARIES=(
     usr/lib/systemd/systemd-remount-fs
     usr/lib/systemd/systemd-modules-load
     usr/lib/systemd/systemd-sysroot-fstab-check
+    usr/lib/systemd/systemd-sysctl
     usr/lib/systemd/system-generators/systemd-fstab-generator
 )
 
@@ -114,6 +117,14 @@ USER_BINARIES=(
     usr/bin/systemd-tmpfiles
     usr/bin/udevadm
     usr/bin/kmod
+    usr/bin/blkid
+    # coreutils needed by live mount script and emergency shell
+    usr/bin/mkdir
+    usr/bin/ls
+    usr/bin/cat
+    usr/bin/sleep
+    usr/bin/uname
+    usr/bin/find
 )
 
 for bin in "${SYSTEMD_BINARIES[@]}" "${USER_BINARIES[@]}"; do
@@ -334,18 +345,20 @@ while IFS= read -r -d '' elf; do
     done
 done < <(find "$INITRAMFS_DIR" -type f -executable -print0)
 
-# Manually include NSS module (loaded via dlopen, not in NEEDED)
-if [[ -f "$STAGING/usr/lib/libnss_files.so.2" ]]; then
-    cp -a "$STAGING/usr/lib/libnss_files.so.2" "$INITRAMFS_DIR/usr/lib/"
-    echo "  Included libnss_files.so.2 (dlopen'd)"
-elif [[ -L "$STAGING/usr/lib/libnss_files.so.2" ]]; then
-    cp -a "$STAGING/usr/lib/libnss_files.so.2" "$INITRAMFS_DIR/usr/lib/"
-    target=$(readlink "$STAGING/usr/lib/libnss_files.so.2")
-    if [[ -f "$STAGING/usr/lib/$target" ]]; then
-        cp -a "$STAGING/usr/lib/$target" "$INITRAMFS_DIR/usr/lib/"
+# Manually include libraries loaded via dlopen (not in NEEDED)
+for dllib in libnss_files.so.2 libkmod.so.2; do
+    if [[ -e "$STAGING/usr/lib/$dllib" ]]; then
+        cp -a "$STAGING/usr/lib/$dllib" "$INITRAMFS_DIR/usr/lib/"
+        # Also copy symlink target if it's a symlink
+        if [[ -L "$STAGING/usr/lib/$dllib" ]]; then
+            target=$(readlink "$STAGING/usr/lib/$dllib")
+            if [[ -f "$STAGING/usr/lib/$target" ]]; then
+                cp -a "$STAGING/usr/lib/$target" "$INITRAMFS_DIR/usr/lib/"
+            fi
+        fi
+        echo "  Included $dllib (dlopen'd)"
     fi
-    echo "  Included libnss_files.so.2 (dlopen'd)"
-fi
+done
 
 # Also include PAM modules needed by sulogin
 if [[ -d "$STAGING/usr/lib/security" ]]; then
@@ -355,6 +368,12 @@ if [[ -d "$STAGING/usr/lib/security" ]]; then
             cp -a "$STAGING/usr/lib/security/$mod" "$INITRAMFS_DIR/usr/lib/security/"
         fi
     done
+fi
+
+# Copy libgcc_s from host if not found in staging packages
+if [[ ! -f "$INITRAMFS_DIR/usr/lib/libgcc_s.so.1" ]]; then
+    cp /usr/lib/libgcc_s.so.1 "$INITRAMFS_DIR/usr/lib/"
+    echo "  Copied libgcc_s.so.1 from host"
 fi
 
 echo "  Total libraries: ${#SEEN_LIBS[@]}"
@@ -393,6 +412,12 @@ kmem:x:9:
 nobody:x:65534:
 EOF
 
+# Shadow file for emergency shell (empty root password)
+cat > "$INITRAMFS_DIR/etc/shadow" << 'EOF'
+root::19814:0:99999:7:::
+EOF
+chmod 600 "$INITRAMFS_DIR/etc/shadow"
+
 # Minimal PAM config for sulogin emergency shell
 mkdir -p "$INITRAMFS_DIR/etc/pam.d"
 cat > "$INITRAMFS_DIR/etc/pam.d/other" << 'EOF'
@@ -403,7 +428,148 @@ session  sufficient pam_unix.so
 EOF
 
 # ============================================================
-# Phase 7: Clean up staging and pack as cpio archive
+# Phase 7: Live ISO boot support
+# ============================================================
+echo "Installing live ISO boot support..."
+
+# Install kernel modules needed for live boot (iso9660, squashfs, overlay)
+if [[ -n "${KERNEL:-}" ]]; then
+    KERNEL_SRC="${KERNEL%/arch/x86/boot/bzImage}"
+    if [[ -d "$KERNEL_SRC" && -f "$KERNEL_SRC/Makefile" ]]; then
+        MODULES_TMP="$BUILD_DIR/initramfs-modules"
+        rm -rf "$MODULES_TMP"
+        echo "  Installing kernel modules for live boot..."
+        make -C "$KERNEL_SRC" modules_install \
+            INSTALL_MOD_PATH="$MODULES_TMP" \
+            INSTALL_MOD_STRIP=1 >/dev/null 2>&1
+        KVER=$(ls "$MODULES_TMP/lib/modules/" | head -1)
+        if [[ -n "$KVER" ]]; then
+            MODDIR="$INITRAMFS_DIR/lib/modules/$KVER"
+            mkdir -p "$MODDIR"
+            # Copy only the modules needed for live ISO boot
+            for mod_path in \
+                kernel/drivers/block/loop.ko* \
+                kernel/drivers/cdrom/cdrom.ko* \
+                kernel/fs/isofs/isofs.ko* \
+                kernel/fs/squashfs/squashfs.ko* \
+                kernel/fs/overlayfs/overlay.ko*; do
+                src="$MODULES_TMP/lib/modules/$KVER/$mod_path"
+                if ls $src >/dev/null 2>&1; then
+                    mkdir -p "$MODDIR/$(dirname "$mod_path")"
+                    cp $src "$MODDIR/$(dirname "$mod_path")/"
+                fi
+            done
+            # Copy static module metadata from kernel build, then regenerate indexes
+            for meta in modules.builtin modules.builtin.bin modules.builtin.modinfo modules.order; do
+                if [[ -f "$MODULES_TMP/lib/modules/$KVER/$meta" ]]; then
+                    cp "$MODULES_TMP/lib/modules/$KVER/$meta" "$MODDIR/"
+                fi
+            done
+            depmod -b "$INITRAMFS_DIR" "$KVER"
+            echo "  Included modules for kernel $KVER"
+        fi
+        rm -rf "$MODULES_TMP"
+    fi
+fi
+
+# Create the live mount script
+mkdir -p "$INITRAMFS_DIR/usr/lib/ion"
+cat > "$INITRAMFS_DIR/usr/lib/ion/ion-live-mount.sh" << 'LIVESCRIPT'
+#!/bin/bash
+set -e
+
+# Ion OS Live ISO Mount
+# Finds the ISO media, mounts squashfs, sets up overlayfs at /sysroot
+
+# Load filesystem modules via insmod (modprobe may not work in initrd)
+for mod in loop cdrom isofs squashfs overlay; do
+    modprobe "$mod" 2>/dev/null || {
+        for ko in /lib/modules/*/kernel/fs/*/"${mod}".ko*; do
+            [ -f "$ko" ] && insmod "$ko" 2>/dev/null && break || true
+        done
+    }
+done
+
+# Wait for the ION-ISO device to appear
+echo "Ion live: searching for ION-ISO media..."
+ISODEV=""
+i=0
+while [ $i -lt 60 ]; do
+    ISODEV=$(blkid -L ION-ISO 2>/dev/null || true)
+    [ -n "$ISODEV" ] && break
+    i=$((i + 1))
+    sleep 0.5
+done
+
+if [ -z "$ISODEV" ]; then
+    echo "Ion live: ERROR - ION-ISO device not found after 30s"
+    echo "Ion live: Available block devices:"
+    ls -la /dev/sd* /dev/sr* /dev/vd* /dev/nvme* 2>/dev/null || true
+    blkid 2>/dev/null || true
+    exit 1
+fi
+
+echo "Ion live: found media at $ISODEV"
+
+# Mount the ISO filesystem
+mkdir -p /run/iso /run/squashfs /run/overlay-rw /sysroot
+mount -t iso9660 -o ro "$ISODEV" /run/iso || {
+    echo "Ion live: iso9660 mount failed, trying auto-detect..."
+    mount -o ro "$ISODEV" /run/iso
+}
+
+echo "Ion live: ISO mounted, contents:"
+ls /run/iso/
+
+# Mount the squashfs root image
+mount -t squashfs -o ro /run/iso/rootfs.squashfs /run/squashfs
+
+# Create overlay (squashfs read-only lower + tmpfs read-write upper)
+mount -t tmpfs tmpfs /run/overlay-rw
+mkdir -p /run/overlay-rw/upper /run/overlay-rw/work
+mount -t overlay overlay \
+    -o lowerdir=/run/squashfs,upperdir=/run/overlay-rw/upper,workdir=/run/overlay-rw/work \
+    /sysroot
+
+# Write a live-mode fstab into the overlay upper layer so the real
+# root systemd does not try to mount /dev/sda2
+mkdir -p /sysroot/etc
+cat > /sysroot/etc/fstab << 'FSTAB'
+# Ion OS Live Mode
+proc    /proc   proc    defaults  0  0
+sysfs   /sys    sysfs   defaults  0  0
+devtmpfs /dev   devtmpfs defaults 0  0
+tmpfs   /tmp    tmpfs   defaults  0  0
+tmpfs   /run    tmpfs   defaults  0  0
+FSTAB
+
+echo "Ion live: overlayfs mounted at /sysroot"
+LIVESCRIPT
+chmod 755 "$INITRAMFS_DIR/usr/lib/ion/ion-live-mount.sh"
+
+# Create the systemd service for live mount
+cat > "$INITRAMFS_DIR/usr/lib/systemd/system/ion-live-mount.service" << 'EOF'
+[Unit]
+Description=Ion OS Live ISO Mount
+DefaultDependencies=no
+ConditionKernelCommandLine=ion.live
+After=systemd-udev-trigger.service systemd-udevd.service
+Before=initrd-root-fs.target
+Wants=systemd-udev-trigger.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/lib/ion/ion-live-mount.sh
+RemainAfterExit=yes
+EOF
+
+# Enable the service for initrd-root-fs.target
+mkdir -p "$INITRAMFS_DIR/usr/lib/systemd/system/initrd-root-fs.target.wants"
+ln -sf ../ion-live-mount.service \
+    "$INITRAMFS_DIR/usr/lib/systemd/system/initrd-root-fs.target.wants/ion-live-mount.service"
+
+# ============================================================
+# Phase 8: Clean up staging and pack as cpio archive
 # ============================================================
 echo "Cleaning up staging..."
 rm -rf "$STAGING"

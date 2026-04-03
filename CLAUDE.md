@@ -14,6 +14,8 @@ make boot         # Compile UEFI bootloader only (C → ELF → PE32+ EFI)
 make initramfs    # Create systemd-based initramfs (extracts Arch packages)
 make rootfs       # Create root filesystem (extracts Arch packages, may need sudo)
 make disk         # Create 768MB GPT disk image (requires sudo)
+make iso          # Create bootable ISO image (no sudo needed)
+make run-iso      # Build ISO and boot in QEMU as CD-ROM
 make clean        # Remove all build artifacts (may need sudo)
 ```
 
@@ -23,11 +25,13 @@ There are no tests or linting configured.
 
 ## Architecture
 
-**Boot flow:** UEFI firmware → Ion bootloader (`boot/bootx64.efi`) → Linux kernel (EFI stub) → systemd in initrd (initrd.target → mount root at /sysroot → switch_root) → systemd on real root
+**Boot flow (disk):** UEFI firmware → Ion bootloader (`boot/bootx64.efi`) → Linux kernel (EFI stub) → systemd in initrd (initrd.target → mount root at /sysroot → switch_root) → systemd on real root
+
+**Boot flow (ISO):** Same as disk, but uses `boot/bootx64-iso.efi` (cmdline has `ion.live` instead of `root=/dev/sda2`). The initramfs `ion-live-mount.service` finds the ISO by label, mounts the squashfs rootfs, and layers a tmpfs overlay for writes.
 
 **Bootloader (`boot/`):** C code using gnu-efi. Compiled with `-ffreestanding`, MS ABI calling convention, no libc. Key UEFI protocols: SimpleFileSystem (load files from ESP), LoadFile2 (register initrd via `LINUX_EFI_INITRD_MEDIA_GUID`), LoadedImageProtocol. All functions return `EFI_STATUS`, checked with `EFI_ERROR()`. The `boot_params` struct must be exactly 4096 bytes (enforced by `static_assert`).
 
-**Build scripts (`scripts/`):** Bash scripts for each build phase. `mkdisk.sh` creates a GPT image with ESP (FAT32) + ext4 root partition. `mk-initramfs.sh` creates a systemd-based initramfs by extracting Arch packages, copying systemd binaries/units/libraries, and packing as cpio.gz. `mk-rootfs.sh` extracts Arch Linux pacman packages (zstd-compressed) for systemd, coreutils, bash, and other userspace tools. `run-qemu.sh` launches QEMU with OVMF firmware.
+**Build scripts (`scripts/`):** Bash scripts for each build phase. `mkdisk.sh` creates a GPT image with ESP (FAT32) + ext4 root partition. `mkiso.sh` creates a UEFI-bootable ISO with squashfs rootfs. `mk-initramfs.sh` creates a systemd-based initramfs by extracting Arch packages, copying systemd binaries/units/libraries, and packing as cpio.gz. `mk-rootfs.sh` extracts Arch Linux pacman packages (zstd-compressed) for systemd, coreutils, bash, and other userspace tools. `mk-squashfs.sh` compresses the rootfs into a squashfs image for ISO boot. `run-qemu.sh` and `run-qemu-iso.sh` launch QEMU with OVMF firmware.
 
 **Bootloader config (`boot/config.h`):** Kernel path, initrd path, default cmdline, and loader type ID. The kernel cmdline defaults to serial console output with `/dev/sda2` as root.
 

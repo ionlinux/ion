@@ -116,6 +116,21 @@ EFI_STATUS linux_load_and_boot(
         return status;
     }
 
+    /*
+     * Set the kernel's DeviceHandle to the bootloader's ESP device.
+     * LoadImage with SourceBuffer leaves DeviceHandle NULL, which
+     * prevents the kernel's EFI stub from accessing the filesystem
+     * (needed for initrd= cmdline loading).
+     */
+    {
+        EFI_LOADED_IMAGE *boot_image = NULL;
+        status = uefi_call_wrapper(BS->HandleProtocol, 3,
+            image_handle, &lip_guid, (VOID **)&boot_image);
+        if (!EFI_ERROR(status) && boot_image != NULL) {
+            kernel_image->DeviceHandle = boot_image->DeviceHandle;
+        }
+    }
+
     cmdline_ucs2 = cmdline_to_ucs2(cmdline, &cmdline_ucs2_size);
     if (cmdline_ucs2 != NULL) {
         kernel_image->LoadOptions = cmdline_ucs2;

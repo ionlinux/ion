@@ -65,9 +65,18 @@ TARGET     = bootx64
 ELF_TARGET = $(TARGET).so
 EFI_TARGET = $(TARGET).efi
 
-.PHONY: all clean
+# ISO variant cmdline (no root=, uses ion.live for live ISO boot)
+ISO_CMDLINE = "console=ttyS0 earlyprintk=serial ion.live initrd=/initramfs.img"
+
+ISO_OBJS = $(SRCS:.c=-iso.o)
+ISO_ELF   = bootx64-iso.so
+ISO_EFI   = bootx64-iso.efi
+
+.PHONY: all iso clean
 
 all: $(EFI_TARGET)
+
+iso: $(ISO_EFI)
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
@@ -78,5 +87,15 @@ $(ELF_TARGET): $(OBJS)
 $(EFI_TARGET): $(ELF_TARGET)
 	$(OBJCOPY) $(OBJCOPY_SECTIONS) --input-target=elf64-x86-64 --output-target=pei-x86-64 --subsystem=10 $< $@
 
+# ISO variant: compiled with different CMDLINE
+%-iso.o: %.c
+	$(CC) $(CFLAGS) -DCMDLINE_OVERRIDE='$(ISO_CMDLINE)' -c $< -o $@
+
+$(ISO_ELF): $(ISO_OBJS)
+	$(LD) $(LDFLAGS) $(ISO_OBJS) -o $@ $(LIBS)
+
+$(ISO_EFI): $(ISO_ELF)
+	$(OBJCOPY) $(OBJCOPY_SECTIONS) --input-target=elf64-x86-64 --output-target=pei-x86-64 --subsystem=10 $< $@
+
 clean:
-	rm -f $(OBJS) $(ELF_TARGET) $(EFI_TARGET)
+	rm -f $(OBJS) $(ELF_TARGET) $(EFI_TARGET) $(ISO_OBJS) $(ISO_ELF) $(ISO_EFI)

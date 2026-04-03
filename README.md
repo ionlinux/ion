@@ -6,7 +6,7 @@ A Linux distribution built from scratch.
 
 ```text
 ion-os/
-├── Makefile                 # Top-level build (make run/clean/boot/initramfs/rootfs/disk)
+├── Makefile                 # Top-level build (make run/clean/boot/initramfs/rootfs/disk/iso)
 ├── .gitignore
 │
 ├── boot/                    # UEFI bootloader (C + gnu-efi)
@@ -22,13 +22,17 @@ ion-os/
 ├── scripts/
 │   ├── mk-initramfs.sh      #   Create systemd-based initramfs from Arch packages
 │   ├── mk-rootfs.sh         #   Create rootfs tree from Arch packages (systemd + coreutils + bash)
+│   ├── mk-squashfs.sh       #   Compress rootfs into squashfs for ISO boot
 │   ├── mkdisk.sh            #   Create 768MB GPT image (ESP + ext4 root)
-│   └── run-qemu.sh          #   Launch QEMU with OVMF firmware
+│   ├── mkiso.sh             #   Create UEFI-bootable ISO image (squashfs + overlayfs live)
+│   ├── run-qemu.sh          #   Launch QEMU with OVMF firmware (disk)
+│   └── run-qemu-iso.sh      #   Launch QEMU with OVMF firmware (ISO CD-ROM)
 │
 └── build/                   # Build artifacts (gitignored)
     ├── initramfs/           #   Initramfs directory tree (systemd-based)
-    ├── initramfs.img        #   Packed initramfs (~7-9MB compressed)
-    └── rootfs/              #   Root filesystem tree (~120MB, Arch packages)
+    ├── initramfs.img        #   Packed initramfs (~9MB compressed)
+    ├── rootfs/              #   Root filesystem tree (~130MB, Arch packages)
+    └── rootfs.squashfs      #   Compressed rootfs for ISO boot (~50-80MB)
 ```
 
 ## Boot Flow
@@ -43,7 +47,8 @@ ion-os/
 ## Build and Run
 
 ```shell
-make run       # Build everything and boot in QEMU (requires sudo for disk image)
+make run       # Build disk image and boot in QEMU (requires sudo)
+make run-iso   # Build ISO and boot in QEMU as CD-ROM (no sudo)
 make clean     # Clean all build artifacts
 ```
 
@@ -56,7 +61,9 @@ make boot       # Build UEFI bootloader
 make initramfs  # Create systemd-based initramfs from Arch packages
 make rootfs     # Create root filesystem from Arch packages (may need sudo)
 make disk       # Create disk image (requires sudo for ext4 loop mount)
-make run        # Boot in QEMU with OVMF
+make run        # Boot disk image in QEMU with OVMF
+make iso        # Create bootable ISO (squashfs + overlayfs live, no sudo)
+make run-iso    # Boot ISO in QEMU as CD-ROM
 ```
 
 ## Requirements
@@ -67,3 +74,4 @@ make run        # Boot in QEMU with OVMF
 - mtools (mformat, mmd, mcopy)
 - parted, e2fsprogs (mkfs.ext4)
 - sudo (for disk image creation)
+- xorriso, squashfs-tools (for ISO image creation)

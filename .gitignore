@@ -1,5 +1,6 @@
 build/
 ion-os.img
+ion-os.iso
 boot/*.o
 boot/*.so
 boot/*.efi
