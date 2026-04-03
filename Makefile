@@ -14,7 +14,7 @@ initramfs:
 	./scripts/mk-initramfs.sh
 
 rootfs:
-	./scripts/mk-rootfs.sh
+	KERNEL=$(KERNEL) ./scripts/mk-rootfs.sh
 
 disk: boot initramfs rootfs
 	sudo ./scripts/mkdisk.sh \

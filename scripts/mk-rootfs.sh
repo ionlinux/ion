@@ -65,6 +65,8 @@ PACKAGES=(
     ncurses
     gmp
     mpfr
+    # kmod dependency (compressed kernel modules)
+    zlib
     # pam_unix.so dependencies (NIS/RPC support compiled in by Arch)
     libnsl
     libtirpc
@@ -121,6 +123,24 @@ rm -rf "$ROOTFS_DIR/usr/include"
 rm -rf "$ROOTFS_DIR/usr/share/pkgconfig"
 rm -rf "$ROOTFS_DIR/usr/lib/pkgconfig"
 rm -rf "$ROOTFS_DIR/.BUILDINFO" "$ROOTFS_DIR/.MTREE" "$ROOTFS_DIR/.PKGINFO" "$ROOTFS_DIR/.INSTALL"
+
+# ============================================================
+# Install kernel modules
+# ============================================================
+if [[ -n "${KERNEL:-}" ]]; then
+    KERNEL_SRC="${KERNEL%/arch/x86/boot/bzImage}"
+    if [[ -d "$KERNEL_SRC" && -f "$KERNEL_SRC/Makefile" ]]; then
+        echo "Installing kernel modules..."
+        make -C "$KERNEL_SRC" modules_install \
+            INSTALL_MOD_PATH="$ROOTFS_DIR" \
+            INSTALL_MOD_STRIP=1 2>&1 | tail -5
+        # Remove build/source symlinks (point back to host kernel tree)
+        rm -f "$ROOTFS_DIR"/lib/modules/*/build
+        rm -f "$ROOTFS_DIR"/lib/modules/*/source
+    else
+        echo "WARNING: Kernel source not found at $KERNEL_SRC, skipping modules"
+    fi
+fi
 
 # ============================================================
 # Create /sbin/init symlink to systemd
