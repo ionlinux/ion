@@ -6,7 +6,7 @@ A Linux distribution built from scratch.
 
 ```text
 ion-os/
-├── Makefile                 # Top-level build (make run/clean/boot/busybox/initramfs/rootfs/disk)
+├── Makefile                 # Top-level build (make run/clean/boot/initramfs/rootfs/disk)
 ├── .gitignore
 │
 ├── boot/                    # UEFI bootloader (C + gnu-efi)
@@ -20,18 +20,15 @@ ion-os/
 │   └── memory.c/h           #   Memory map helpers (for future use)
 │
 ├── scripts/
-│   ├── build-busybox.sh     #   Download + build BusyBox 1.36.1 static
-│   ├── mk-initramfs.sh      #   Create cpio.gz initramfs (BusyBox + /init script)
-│   ├── mk-rootfs.sh         #   Create rootfs tree (BusyBox + systemd from Arch pkgs)
+│   ├── mk-initramfs.sh      #   Create systemd-based initramfs from Arch packages
+│   ├── mk-rootfs.sh         #   Create rootfs tree from Arch packages (systemd + coreutils + bash)
 │   ├── mkdisk.sh            #   Create 768MB GPT image (ESP + ext4 root)
 │   └── run-qemu.sh          #   Launch QEMU with OVMF firmware
 │
 └── build/                   # Build artifacts (gitignored)
-    ├── busybox              #   Static BusyBox binary (2.3MB)
-    ├── busybox-1.36.1/      #   BusyBox source tree
-    ├── initramfs/           #   Initramfs directory tree
-    ├── initramfs.img        #   Packed initramfs (1.2MB)
-    └── rootfs/              #   Root filesystem tree (~98MB, BusyBox + systemd)
+    ├── initramfs/           #   Initramfs directory tree (systemd-based)
+    ├── initramfs.img        #   Packed initramfs (~7-9MB compressed)
+    └── rootfs/              #   Root filesystem tree (~120MB, Arch packages)
 ```
 
 ## Boot Flow
@@ -39,9 +36,9 @@ ion-os/
 1. **UEFI firmware** loads `\EFI\BOOT\BOOTX64.EFI` from the ESP
 2. **Ion bootloader** loads kernel + registers initrd via LoadFile2 protocol
 3. **Linux kernel** boots, discovers initrd through LINUX_EFI_INITRD_MEDIA_GUID
-4. **Initramfs /init** mounts devtmpfs/proc/sysfs, mounts ext4 root, switch_roots
-5. **systemd** starts as PID 1, reaches multi-user.target
-6. **BusyBox login** presents login prompt on serial console
+4. **systemd in initrd** runs as PID 1, mounts root at /sysroot, performs switch_root
+5. **systemd** restarts as PID 1 on the real root, reaches multi-user.target
+6. **login** presents login prompt on serial console
 
 ## Build and Run
 
@@ -56,9 +53,8 @@ Login: **root** / **root**
 
 ```shell
 make boot       # Build UEFI bootloader
-make busybox    # Download and build BusyBox static binary
-make initramfs  # Create initramfs cpio archive
-make rootfs     # Create root filesystem (extracts Arch packages, may need sudo)
+make initramfs  # Create systemd-based initramfs from Arch packages
+make rootfs     # Create root filesystem from Arch packages (may need sudo)
 make disk       # Create disk image (requires sudo for ext4 loop mount)
 make run        # Boot in QEMU with OVMF
 ```
