@@ -3,7 +3,7 @@
 .PHONY: all clean boot busybox initramfs rootfs disk run
 
 BUILD_DIR = build
-KERNEL   ?= /boot/arch/vmlinuz-linux
+KERNEL   ?= /home/mattmoore/source/torvalds/linux/arch/x86/boot/bzImage
 
 all: disk
 
