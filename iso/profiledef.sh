@@ -10,7 +10,7 @@ install_dir="ion"
 buildmodes=('iso')
 bootmodes=(
   'bios.syslinux'
-  'uefi.grub'
+  'uefi.systemd-boot'
 )
 arch="x86_64"
 pacman_conf="pacman.conf"
@@ -18,4 +18,5 @@ airootfs_image_type="squashfs"
 airootfs_image_tool_options=('-comp' 'xz' '-Xbcj' 'x86' '-b' '1M')
 file_permissions=(
   ["/etc/shadow"]="0:0:400"
+  ["/usr/local/bin/ion-install"]="0:0:755"
 )

@@ -25,6 +25,7 @@ dhcpcd
 openssh
 
 # Utilities
+pv
 sudo
 nano
 vim
@@ -43,3 +44,4 @@ pciutils
 
 # Installer
 arch-install-scripts
+parted
