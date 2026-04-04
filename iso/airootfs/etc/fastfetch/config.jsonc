@@ -1,0 +1,29 @@
+{
+    "logo": {
+        "source": "/usr/share/fastfetch/logos/ion.txt",
+        "type": "file-raw"
+    },
+    "modules": [
+        "title",
+        "separator",
+        "os",
+        "host",
+        "kernel",
+        "uptime",
+        "packages",
+        "shell",
+        "display",
+        "de",
+        "wm",
+        "terminal",
+        "cpu",
+        "gpu",
+        "memory",
+        "swap",
+        "disk",
+        "localip",
+        "battery",
+        "break",
+        "colors"
+    ]
+}

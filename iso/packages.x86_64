@@ -25,6 +25,7 @@ dhcpcd
 openssh
 
 # Utilities
+fastfetch
 pv
 sudo
 nano

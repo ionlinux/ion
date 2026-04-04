@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 96" width="400" height="96">
+  <defs>
+    <linearGradient id="core" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00d4ff"/>
+      <stop offset="100%" stop-color="#0088dd"/>
+    </linearGradient>
+    <linearGradient id="ring" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00d4ff"/>
+      <stop offset="100%" stop-color="#0066bb"/>
+    </linearGradient>
+  </defs>
+
+  <!-- === Icon (scaled to 0.375: 96x96 centered in 96x96 area) === -->
+  <g transform="translate(48,48) scale(0.375) translate(-128,-128)">
+    <!-- Outer orbit ring -->
+    <ellipse cx="128" cy="128" rx="100" ry="38"
+      fill="none" stroke="url(#ring)" stroke-width="6"
+      transform="rotate(-30 128 128)"/>
+
+    <!-- Second orbit ring -->
+    <ellipse cx="128" cy="128" rx="100" ry="38"
+      fill="none" stroke="url(#ring)" stroke-width="6"
+      transform="rotate(30 128 128)"/>
+
+    <!-- Third orbit ring -->
+    <ellipse cx="128" cy="128" rx="100" ry="38"
+      fill="none" stroke="url(#ring)" stroke-width="5.5"
+      transform="rotate(90 128 128)"/>
+
+    <!-- Core nucleus -->
+    <circle cx="128" cy="128" r="34" fill="url(#core)"/>
+
+    <!-- Inner glow -->
+    <circle cx="128" cy="128" r="22" fill="#ffffff" opacity="0.2"/>
+
+    <!-- Electron dots -->
+    <circle cx="37" cy="85" r="8" fill="#00d4ff"/>
+    <circle cx="219" cy="171" r="8" fill="#00d4ff"/>
+    <circle cx="183" cy="41" r="8" fill="#00c0ee"/>
+    <circle cx="73" cy="215" r="8" fill="#00c0ee"/>
+    <circle cx="128" cy="28" r="8" fill="#00aadd"/>
+    <circle cx="128" cy="228" r="8" fill="#00aadd"/>
+
+    <!-- Positive charge indicator -->
+    <text x="196" y="74" font-family="sans-serif" font-weight="bold"
+      font-size="46" fill="#00d4ff">+</text>
+  </g>
+
+  <!-- === Text (light mode: dark grey "ion", Arch cyan "linux") === -->
+  <text x="108" y="60" font-family="sans-serif" font-weight="300"
+    font-size="52" letter-spacing="4">
+    <tspan fill="#333333">ion</tspan><tspan fill="#1793D1">linux</tspan>
+  </text>
+</svg>
