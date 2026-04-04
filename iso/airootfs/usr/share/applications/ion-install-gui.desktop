@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Install Ion Linux
+Comment=Install Ion Linux to disk
+Exec=sudo calamares
+Icon=ion-logo
+Terminal=false
+Categories=System;

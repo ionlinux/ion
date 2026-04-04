@@ -1,0 +1,40 @@
+---
+componentName: ion
+
+strings:
+    productName:         Ion Linux
+    shortProductName:    Ion
+    version:             2026.04
+    shortVersion:        2026.04
+    versionedName:       Ion Linux 2026.04
+    shortVersionedName:  Ion 2026.04
+    bootloaderEntryName: Ion Linux
+    productUrl:          https://ionlinux.org/
+    supportUrl:          https://forum.ionlinux.org/
+    knownIssuesUrl:      https://bugs.ionlinux.org/
+    releaseNotesUrl:     https://ionlinux.org/release-notes/
+    donateUrl:           https://ionlinux.org/donate/
+
+images:
+    productIcon:         /usr/share/pixmaps/ion-logo.svg
+    productLogo:         /usr/share/pixmaps/ion-logo.svg
+    productWelcome:      /usr/share/pixmaps/ion-logo.svg
+
+style:
+    SidebarBackground:   "#1a1a2e"
+    SidebarText:         "#e0e0e0"
+    SidebarTextSelect:   "#ffffff"
+    SidebarTextHighlight: "#00d4ff"
+    SidebarBackgroundCurrent: "#0077cc"
+
+style-override:          "stylesheet.qss"
+slideshow:               "show.qml"
+slideshowAPI:            2
+
+windowExpanding:         normal
+windowSize:              900px,600px
+windowPlacement:         center
+
+navigation:              widget
+welcomeStyleCalamares:   true
+welcomeExpandingLogo:    true

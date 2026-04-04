@@ -1,0 +1,5 @@
+[org/gnome/shell]
+welcome-dialog-last-shown-version='999'
+
+[org/gnome/desktop/interface]
+color-scheme='prefer-dark'

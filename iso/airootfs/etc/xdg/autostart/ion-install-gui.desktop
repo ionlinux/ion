@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=Install Ion Linux
+Exec=sudo calamares
+Icon=ion-logo
+Terminal=false
+X-GNOME-Autostart-enabled=true

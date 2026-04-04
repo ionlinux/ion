@@ -20,6 +20,17 @@ echo "    Output directory: ${OUT_DIR}"
 
 mkdir -p "${WORK_DIR}" "${OUT_DIR}"
 
+# Make local repo available if it exists (for calamares, etc.)
+REPO_DIR="${OUT_DIR}/repo"
+if [[ -d "$REPO_DIR" && -f "$REPO_DIR/ion-local.db.tar.gz" ]]; then
+  echo "==> Copying local repo to /tmp/ion-repo..."
+  mkdir -p /tmp/ion-repo
+  cp -f "$REPO_DIR"/* /tmp/ion-repo/
+else
+  echo "==> Warning: No local repo found at ${REPO_DIR}"
+  echo "    Calamares will not be available. Run ./scripts/build-calamares.sh first."
+fi
+
 # Use mkarchiso (from archiso package) as the base build tool.
 # Ion customizes the profile in iso/.
 mkarchiso -v \

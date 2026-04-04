@@ -39,10 +39,27 @@ man-pages
 less
 which
 
+# Desktop (live ISO)
+gnome
+gnome-tweaks
+gdm
+
 # Hardware
 usbutils
 pciutils
+spice-vdagent
 
 # Installer
 arch-install-scripts
+rsync
+squashfs-tools
+calamares-git
+kcoreaddons
+kcrash
+kpmcore
+libpwquality
+python
+qt6-declarative
+qt6-svg
+yaml-cpp
 parted

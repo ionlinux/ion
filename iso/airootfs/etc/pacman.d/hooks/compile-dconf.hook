@@ -1,0 +1,10 @@
+[Trigger]
+Type = Path
+Operation = Install
+Operation = Upgrade
+Target = usr/bin/dconf
+
+[Action]
+Description = Compiling dconf database...
+When = PostTransaction
+Exec = /usr/bin/dconf update
