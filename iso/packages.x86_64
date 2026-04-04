@@ -3,6 +3,7 @@ base
 linux
 linux-firmware
 mkinitcpio-archiso
+archlinux-keyring
 # ion-keyring       # TODO: enable once Ion package repo is live
 # ion-mirrorlist    # TODO: enable once Ion package repo is live
 

@@ -1,0 +1,13 @@
+[Unit]
+Description=Initialize pacman keyring
+Before=pacman-init.service
+ConditionDirectoryNotEmpty=!/etc/pacman.d/gnupg
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/bin/pacman-key --init
+ExecStart=/usr/bin/pacman-key --populate archlinux
+
+[Install]
+WantedBy=multi-user.target
