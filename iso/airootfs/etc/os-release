@@ -1,0 +1,11 @@
+NAME="Ion Linux"
+PRETTY_NAME="Ion Linux"
+ID=ion
+ID_LIKE=arch
+BUILD_ID=rolling
+ANSI_COLOR="38;2;23;147;209"
+HOME_URL="https://ionlinux.org/"
+DOCUMENTATION_URL="https://wiki.ionlinux.org/"
+SUPPORT_URL="https://forum.ionlinux.org/"
+BUG_REPORT_URL="https://bugs.ionlinux.org/"
+LOGO=ion-logo

@@ -1,0 +1,16 @@
+#
+# Ion Linux mirror list
+# Generated on 2026-04-04
+#
+
+## Worldwide
+# Server = https://mirror.ionlinux.org/$repo/os/$arch
+
+## United States
+# Server = https://us.mirror.ionlinux.org/$repo/os/$arch
+
+## Europe
+# Server = https://eu.mirror.ionlinux.org/$repo/os/$arch
+
+## Asia
+# Server = https://asia.mirror.ionlinux.org/$repo/os/$arch

@@ -1,0 +1,25 @@
+# Maintainer: Ion Linux <packages@ionlinux.org>
+
+pkgname=filesystem
+pkgver=1
+pkgrel=1
+pkgdesc='Base Ion Linux filesystem layout'
+url='https://ionlinux.org'
+arch=('any')
+license=('MIT')
+
+package() {
+  # Create base directory structure
+  install -dm755 "$pkgdir"/{boot,dev,etc/{skel,profile.d},home,mnt,opt,proc,root,run,srv,sys,tmp,usr/{bin,include,lib,share,src},var/{cache,lib,log,mail,spool,tmp}}
+
+  # Symlinks for compatibility
+  ln -s usr/bin "$pkgdir/bin"
+  ln -s usr/bin "$pkgdir/sbin"
+  ln -s usr/lib "$pkgdir/lib"
+  ln -s usr/lib "$pkgdir/lib64"
+  ln -s bin "$pkgdir/usr/sbin"
+  ln -s ../lib "$pkgdir/usr/lib64"
+
+  # /etc/ion-release
+  echo "Ion Linux (Rolling)" > "$pkgdir/etc/ion-release"
+}

@@ -1,0 +1,44 @@
+# Base system
+base
+linux
+linux-firmware
+mkinitcpio-archiso
+# ion-keyring       # TODO: enable once Ion package repo is live
+# ion-mirrorlist    # TODO: enable once Ion package repo is live
+
+# Boot
+grub
+efibootmgr
+syslinux
+
+# Filesystem
+btrfs-progs
+dosfstools
+e2fsprogs
+xfsprogs
+
+# Networking
+networkmanager
+iwd
+dhcpcd
+openssh
+
+# Utilities
+sudo
+nano
+vim
+git
+wget
+curl
+htop
+man-db
+man-pages
+less
+which
+
+# Hardware
+usbutils
+pciutils
+
+# Installer
+arch-install-scripts

@@ -1,0 +1,13 @@
+# Maintainer: Ion Linux <packages@ionlinux.org>
+
+pkgname=ion-mirrorlist
+pkgver=1
+pkgrel=1
+pkgdesc='Ion Linux mirror list for pacman'
+url='https://ionlinux.org'
+arch=('any')
+license=('MIT')
+
+package() {
+  install -Dm644 mirrorlist "$pkgdir/etc/pacman.d/mirrorlist"
+}

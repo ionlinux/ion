@@ -1,0 +1,41 @@
+# Maintainer: Ion Linux <packages@ionlinux.org>
+
+pkgname=base
+pkgver=1
+pkgrel=1
+pkgdesc='Minimal package set to define a basic Ion Linux installation'
+url='https://ionlinux.org'
+arch=('any')
+license=('MIT')
+depends=(
+  'filesystem'
+  'glibc'
+  'bash'
+  'coreutils'
+  'file'
+  'findutils'
+  'gawk'
+  'grep'
+  'gzip'
+  'iproute2'
+  'iputils'
+  'pacman'
+  'procps-ng'
+  'psmisc'
+  'sed'
+  'shadow'
+  'systemd'
+  'systemd-sysvcompat'
+  'tar'
+  'util-linux'
+  'xz'
+)
+optdepends=(
+  'linux: default kernel'
+  'linux-firmware: firmware for common hardware'
+)
+
+package() {
+  # Meta package — no files to install
+  true
+}

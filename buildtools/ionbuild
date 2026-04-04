@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+#
+# ionbuild — wrapper around makepkg for building IONBUILD packages
+#
+set -euo pipefail
+
+IONBUILD_FILE="IONBUILD"
+
+if [[ ! -f "$IONBUILD_FILE" ]]; then
+  echo "error: no IONBUILD file in current directory" >&2
+  exit 1
+fi
+
+# IONBUILD is PKGBUILD-compatible — symlink if needed
+if [[ ! -f PKGBUILD ]]; then
+  ln -sf IONBUILD PKGBUILD
+fi
+
+exec makepkg "$@"

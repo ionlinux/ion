@@ -1,0 +1,17 @@
+# Maintainer: Ion Linux <packages@ionlinux.org>
+
+pkgname=ion-keyring
+pkgver=1
+pkgrel=1
+pkgdesc='Ion Linux PGP keyring'
+url='https://ionlinux.org'
+arch=('any')
+license=('MIT')
+install="$pkgname.install"
+
+package() {
+  install -dm755 "$pkgdir/usr/share/pacman/keyrings/"
+  install -m644 ion.gpg "$pkgdir/usr/share/pacman/keyrings/"
+  install -m644 ion-trusted "$pkgdir/usr/share/pacman/keyrings/"
+  install -m644 ion-revoked "$pkgdir/usr/share/pacman/keyrings/"
+}

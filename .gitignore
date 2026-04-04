@@ -1,0 +1,23 @@
+# Build output
+build/
+out/
+*.iso
+
+# Package build artifacts
+*.pkg.tar.zst
+*.pkg.tar.xz
+*.src.tar.gz
+pkg/
+src/
+PKGBUILD
+
+# Editor
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
