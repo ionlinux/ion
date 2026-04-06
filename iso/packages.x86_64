@@ -51,6 +51,9 @@ usbutils
 pciutils
 spice-vdagent
 
+# Hyprland extras (from local repo)
+waypaper-git
+
 # Installer
 arch-install-scripts
 rsync

@@ -23,14 +23,28 @@ mkdir -p "${WORK_DIR}" "${OUT_DIR}"
 # Make local repo available (for calamares, etc.)
 # Build calamares first if the repo doesn't exist yet
 REPO_DIR="${OUT_DIR}/repo"
-if [[ ! -d "$REPO_DIR" || ! -f "$REPO_DIR/ion-local.db.tar.gz" ]]; then
-  echo "==> Local repo not found — building AUR packages first..."
-  # Ensure out/repo is writable by the unprivileged user for makepkg
+
+# Build AUR packages into local repo if any are missing
+build_aur_packages() {
   mkdir -p "$REPO_DIR"
   chown "${SUDO_USER:-nobody}:${SUDO_USER:-nobody}" "$REPO_DIR"
-  sudo -u "${SUDO_USER:-nobody}" "${SCRIPT_DIR}/build-calamares.sh"
-  sudo -u "${SUDO_USER:-nobody}" "${SCRIPT_DIR}/build-paru.sh"
-fi
+
+  local need_build=false
+  for pkg in calamares-git paru waypaper-git; do
+    if ! ls "$REPO_DIR"/${pkg}-*.pkg.tar.zst &>/dev/null; then
+      need_build=true
+      break
+    fi
+  done
+
+  if [[ "$need_build" == "true" ]]; then
+    echo "==> Building missing AUR packages..."
+    ls "$REPO_DIR"/calamares-git-*.pkg.tar.zst &>/dev/null || sudo -u "${SUDO_USER:-nobody}" "${SCRIPT_DIR}/build-calamares.sh"
+    ls "$REPO_DIR"/paru-*.pkg.tar.zst &>/dev/null          || sudo -u "${SUDO_USER:-nobody}" "${SCRIPT_DIR}/build-paru.sh"
+    ls "$REPO_DIR"/waypaper-git-*.pkg.tar.zst &>/dev/null   || sudo -u "${SUDO_USER:-nobody}" "${SCRIPT_DIR}/build-waypaper.sh"
+  fi
+}
+build_aur_packages
 
 echo "==> Copying local repo to /tmp/ion-repo..."
 mkdir -p /tmp/ion-repo
