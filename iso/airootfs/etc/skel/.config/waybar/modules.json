@@ -1,0 +1,125 @@
+{
+    "custom/appmenu": {
+        "format": "",
+        "tooltip-format": "Apps",
+        "on-click": "wofi --show drun"
+    },
+
+    "hyprland/workspaces": {
+        "on-scroll-up": "hyprctl dispatch workspace r+1",
+        "on-scroll-down": "hyprctl dispatch workspace r-1",
+        "persistent-workspaces": {
+            "*": 5
+        }
+    },
+
+    "custom/quicklink_terminal": {
+        "format": "",
+        "on-click": "kitty",
+        "tooltip-format": "Kitty"
+    },
+
+    "custom/quicklink_filemanager": {
+        "format": "",
+        "on-click": "thunar",
+        "tooltip-format": "Thunar"
+    },
+
+    "group/quicklinks": {
+        "orientation": "horizontal",
+        "modules": [
+            "custom/quicklink_terminal",
+            "custom/quicklink_filemanager"
+        ]
+    },
+
+    "pulseaudio": {
+        "format": "{icon}  {volume}%",
+        "format-bluetooth": "{volume}% {icon} {format_source}",
+        "format-bluetooth-muted": " {icon} {format_source}",
+        "format-muted": " {format_source}",
+        "format-source": "{volume}% ",
+        "format-source-muted": "",
+        "format-icons": {
+            "headphone": " ",
+            "hands-free": " ",
+            "headset": " ",
+            "phone": " ",
+            "portable": " ",
+            "car": " ",
+            "default": ["", "", ""]
+        },
+        "on-click": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"
+    },
+
+    "network": {
+        "format-wifi": "  {essid}",
+        "format-ethernet": "  {ifname}",
+        "format-disconnected": "  disconnected",
+        "tooltip-format": "{ipaddr}/{cidr}"
+    },
+
+    "bluetooth": {
+        "on-click": "blueman-manager",
+        "format-on": "",
+        "format-off": "",
+        "format-connected": " {device_alias}"
+    },
+
+    "battery": {
+        "format": "{icon}  {capacity}%",
+        "format-charging": "  {capacity}%",
+        "format-plugged": "  {capacity}%",
+        "format-icons": ["", "", "", "", ""],
+        "states": {
+            "warning": 20,
+            "critical": 10
+        },
+        "tooltip-format": "{timeTo}"
+    },
+
+    "group/hardware": {
+        "orientation": "horizontal",
+        "modules": [
+            "cpu",
+            "memory"
+        ]
+    },
+
+    "cpu": {
+        "format": "  {usage}%",
+        "interval": 5
+    },
+
+    "memory": {
+        "format": "  {percentage}%",
+        "interval": 5,
+        "tooltip-format": "{used:0.1f} GiB / {total:0.1f} GiB"
+    },
+
+    "tray": {
+        "icon-size": 20,
+        "spacing": 10
+    },
+
+    "custom/wallpaper": {
+        "format": "󰸉",
+        "on-click": "waypaper",
+        "tooltip-format": "Wallpaper"
+    },
+
+    "clock": {
+        "format": "{:%A  %m/%d/%Y  %B  %I:%M %p}",
+        "tooltip-format": "<big>{:%Y %B \t week: %V }</big>\n<tt>{calendar}</tt>"
+    },
+
+    "custom/power": {
+        "format": " ⏻ ",
+        "on-click": "hyprctl dispatch exit",
+        "tooltip-format": "Power Menu"
+    },
+
+    "custom/empty": {
+        "format": ""
+    }
+}

@@ -50,6 +50,14 @@ echo "==> Copying local repo to /tmp/ion-repo..."
 mkdir -p /tmp/ion-repo
 cp -f "$REPO_DIR"/* /tmp/ion-repo/
 
+# Clone LazyVim starter into skel for neovim setup
+NVIM_SKEL="${PROJECT_ROOT}/iso/airootfs/etc/skel/.config/nvim"
+if [[ ! -d "$NVIM_SKEL/.git" ]]; then
+  echo "==> Cloning LazyVim starter into skel..."
+  rm -rf "$NVIM_SKEL"
+  sudo -u "${SUDO_USER:-nobody}" git clone https://github.com/LazyVim/starter.git "$NVIM_SKEL"
+fi
+
 # Use mkarchiso (from archiso package) as the base build tool.
 # Ion customizes the profile in iso/.
 mkarchiso -v \

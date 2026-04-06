@@ -80,15 +80,27 @@ for userdir in /home/*/; do
     fi
 done
 
-# ── Neovim: set up LazyVim starter if installed ───────────────
-if pacman -Q neovim &>/dev/null; then
-    git clone https://github.com/LazyVim/starter.git /etc/skel/.config/nvim 2>/dev/null || true
+# ── Waybar config ─────────────────────────────────────────────
+for userdir in /home/*/; do
+    username=$(basename "$userdir")
+    if id "$username" &>/dev/null; then
+        mkdir -p "${userdir}.config/waybar"
+        cp /etc/skel/.config/waybar/config.jsonc "${userdir}.config/waybar/config.jsonc"
+        cp /etc/skel/.config/waybar/modules.json "${userdir}.config/waybar/modules.json"
+        cp /etc/skel/.config/waybar/style.css "${userdir}.config/waybar/style.css"
+        cp /etc/skel/.config/waybar/colors.css "${userdir}.config/waybar/colors.css"
+        chown -R "$username:$username" "${userdir}.config/waybar"
+    fi
+done
+
+# ── Neovim: copy LazyVim starter to existing users ────────────
+if [[ -d /etc/skel/.config/nvim ]]; then
     for userdir in /home/*/; do
         username=$(basename "$userdir")
         if id "$username" &>/dev/null; then
             mkdir -p "${userdir}.config/nvim"
             cp -rn /etc/skel/.config/nvim/. "${userdir}.config/nvim/"
-            chown -R "$username:$username" "${userdir}.config"
+            chown -R "$username:$username" "${userdir}.config/nvim"
         fi
     done
 fi

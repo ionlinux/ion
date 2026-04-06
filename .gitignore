@@ -21,3 +21,4 @@ PKGBUILD
 # OS
 .DS_Store
 Thumbs.db
+iso/airootfs/etc/skel/.config/nvim/
