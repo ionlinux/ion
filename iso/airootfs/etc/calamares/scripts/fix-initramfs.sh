@@ -74,12 +74,20 @@ elif pacman -Q gdm &>/dev/null; then
     systemctl enable gdm
 fi
 
-# Hyprland: create a default config if installed and no config exists
+# Hyprland: install Ion's bundled config if installed
 if pacman -Q hyprland &>/dev/null; then
     mkdir -p /etc/skel/.config/hypr
-    if [[ ! -f /etc/skel/.config/hypr/hyprland.conf ]]; then
-        cp /usr/share/hyprland/hyprland.conf /etc/skel/.config/hypr/hyprland.conf 2>/dev/null || true
-    fi
+    cp /etc/calamares/hyprland.conf /etc/skel/.config/hypr/hyprland.conf
+
+    # Copy to existing user home directories (users module runs before shellprocess)
+    for userdir in /home/*/; do
+        username=$(basename "$userdir")
+        if id "$username" &>/dev/null; then
+            mkdir -p "${userdir}.config/hypr"
+            cp -n /etc/skel/.config/hypr/hyprland.conf "${userdir}.config/hypr/hyprland.conf"
+            chown -R "$username:$username" "${userdir}.config/hypr"
+        fi
+    done
 fi
 
 # Neovim: set up LazyVim starter if neovim is installed
