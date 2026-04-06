@@ -12,7 +12,12 @@ MODE="${1:-gui}"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
-ISO="$(ls -t "${PROJECT_ROOT}"/out/ionlinux-*.iso 2>/dev/null | head -1)"
+LATEST="${PROJECT_ROOT}/out/ionlinux-latest-x86_64.iso"
+if [[ -e "$LATEST" ]]; then
+  ISO="$(readlink -f "$LATEST")"
+else
+  ISO="$(ls -t "${PROJECT_ROOT}"/out/ionlinux-*.iso 2>/dev/null | head -1)"
+fi
 
 if [[ -z "$ISO" ]]; then
   echo "error: no ISO found in out/. Run ./scripts/build-iso.sh first." >&2

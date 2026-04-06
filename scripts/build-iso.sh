@@ -44,3 +44,10 @@ mkarchiso -v \
 
 echo "==> ISO build complete. Output:"
 ls -lh "${OUT_DIR}"/*.iso 2>/dev/null || echo "    (no ISO found — check build logs)"
+
+# Create a "latest" symlink for convenience
+LATEST_ISO=$(ls -t "${OUT_DIR}"/*.iso 2>/dev/null | head -1)
+if [[ -n "$LATEST_ISO" ]]; then
+  ln -sf "$(basename "$LATEST_ISO")" "${OUT_DIR}/ionlinux-latest-x86_64.iso"
+  echo "    Symlink: ionlinux-latest-x86_64.iso -> $(basename "$LATEST_ISO")"
+fi

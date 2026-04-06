@@ -61,6 +61,15 @@ rm -f /etc/sudoers.d/liveuser
 # Remove GDM autologin
 rm -f /etc/gdm/custom.conf
 
+# Enable the correct display manager and remove the unused DE
+if pacman -Q sddm &>/dev/null; then
+    systemctl disable gdm 2>/dev/null || true
+    systemctl enable sddm
+    pacman -Rns --noconfirm gnome gnome-tweaks gdm 2>/dev/null || true
+elif pacman -Q gdm &>/dev/null; then
+    systemctl enable gdm
+fi
+
 # Remove liveuser setup service
 rm -f /etc/systemd/system/liveuser-setup.service
 rm -f /etc/systemd/system/multi-user.target.wants/liveuser-setup.service
