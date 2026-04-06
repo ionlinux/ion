@@ -81,6 +81,29 @@ for userdir in /home/*/; do
     fi
 done
 
+# ── GTK dark theme ────────────────────────────────────────────
+for userdir in /home/*/; do
+    username=$(basename "$userdir")
+    if id "$username" &>/dev/null; then
+        mkdir -p "${userdir}.config/gtk-3.0" "${userdir}.config/gtk-4.0"
+        cp /etc/skel/.config/gtk-3.0/settings.ini "${userdir}.config/gtk-3.0/settings.ini"
+        cp /etc/skel/.config/gtk-4.0/settings.ini "${userdir}.config/gtk-4.0/settings.ini"
+        chown -R "$username:$username" "${userdir}.config/gtk-3.0" "${userdir}.config/gtk-4.0"
+    fi
+done
+
+# ── Kitty config ──────────────────────────────────────────────
+for userdir in /home/*/; do
+    username=$(basename "$userdir")
+    if id "$username" &>/dev/null; then
+        mkdir -p "${userdir}.config/kitty"
+        cp /etc/skel/.config/kitty/kitty.conf "${userdir}.config/kitty/kitty.conf"
+        cp /etc/skel/.config/kitty/current-theme.conf "${userdir}.config/kitty/current-theme.conf"
+        cp /etc/skel/.config/kitty/colors-matugen.conf "${userdir}.config/kitty/colors-matugen.conf"
+        chown -R "$username:$username" "${userdir}.config/kitty"
+    fi
+done
+
 # ── Waybar config ─────────────────────────────────────────────
 for userdir in /home/*/; do
     username=$(basename "$userdir")
@@ -91,6 +114,18 @@ for userdir in /home/*/; do
         cp /etc/skel/.config/waybar/style.css "${userdir}.config/waybar/style.css"
         cp /etc/skel/.config/waybar/colors.css "${userdir}.config/waybar/colors.css"
         chown -R "$username:$username" "${userdir}.config/waybar"
+    fi
+done
+
+# ── Matugen config ────────────────────────────────────────────
+for userdir in /home/*/; do
+    username=$(basename "$userdir")
+    if id "$username" &>/dev/null; then
+        mkdir -p "${userdir}.config/matugen/templates"
+        cp /etc/skel/.config/matugen/config.toml "${userdir}.config/matugen/config.toml"
+        cp /etc/skel/.config/matugen/templates/kitty-colors.conf "${userdir}.config/matugen/templates/kitty-colors.conf"
+        cp /etc/skel/.config/matugen/templates/colors.css "${userdir}.config/matugen/templates/colors.css"
+        chown -R "$username:$username" "${userdir}.config/matugen"
     fi
 done
 
