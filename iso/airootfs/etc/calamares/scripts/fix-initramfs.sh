@@ -93,6 +93,16 @@ for userdir in /home/*/; do
     fi
 done
 
+# ── Waypaper config ───────────────────────────────────────────
+for userdir in /home/*/; do
+    username=$(basename "$userdir")
+    if id "$username" &>/dev/null; then
+        mkdir -p "${userdir}.config/waypaper"
+        cp /etc/skel/.config/waypaper/config.ini "${userdir}.config/waypaper/config.ini"
+        chown -R "$username:$username" "${userdir}.config/waypaper"
+    fi
+done
+
 # ── Neovim: copy LazyVim starter to existing users ────────────
 if [[ -d /etc/skel/.config/nvim ]]; then
     for userdir in /home/*/; do

@@ -22,3 +22,4 @@ PKGBUILD
 .DS_Store
 Thumbs.db
 iso/airootfs/etc/skel/.config/nvim/
+iso/airootfs/usr/share/wallpapers/ion/
