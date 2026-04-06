@@ -93,6 +93,16 @@ for userdir in /home/*/; do
     fi
 done
 
+# ── Wlogout config ────────────────────────────────────────────
+for userdir in /home/*/; do
+    username=$(basename "$userdir")
+    if id "$username" &>/dev/null; then
+        mkdir -p "${userdir}.config/wlogout"
+        cp /etc/skel/.config/wlogout/layout "${userdir}.config/wlogout/layout"
+        chown -R "$username:$username" "${userdir}.config/wlogout"
+    fi
+done
+
 # ── Waypaper config ───────────────────────────────────────────
 for userdir in /home/*/; do
     username=$(basename "$userdir")

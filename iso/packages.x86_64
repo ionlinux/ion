@@ -44,6 +44,7 @@ which
 
 # Desktop
 hyprland
+hyprlock
 uwsm
 dbus-broker-units
 xdg-desktop-portal-hyprland
@@ -60,6 +61,7 @@ wireplumber
 polkit-gnome
 nwg-look
 waypaper-git
+wlogout
 awww
 ly
 
