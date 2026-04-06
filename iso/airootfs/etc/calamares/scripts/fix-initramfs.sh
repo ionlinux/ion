@@ -58,42 +58,31 @@ ENTRY
 userdel -rf liveuser 2>/dev/null || true
 rm -f /etc/sudoers.d/liveuser
 
-# Remove GDM autologin
-rm -f /etc/gdm/custom.conf
+# Remove tty1 root autologin (live-only)
+rm -rf /etc/systemd/system/getty@tty1.service.d
 
-# Enable the correct display manager and remove the unused DE
-if pacman -Q ly &>/dev/null; then
-    systemctl disable gdm 2>/dev/null || true
-    systemctl enable ly@tty2
-    pacman -Rns --noconfirm gnome gnome-tweaks gdm 2>/dev/null || true
-elif pacman -Q sddm &>/dev/null; then
-    systemctl disable gdm 2>/dev/null || true
-    systemctl enable sddm
-    pacman -Rns --noconfirm gnome gnome-tweaks gdm 2>/dev/null || true
-elif pacman -Q gdm &>/dev/null; then
-    systemctl enable gdm
-fi
+# Enable ly display manager and remove live autologin
+systemctl enable ly@tty2
+sed -i '/^auto_login_user/d; /^auto_login_session/d; /^auto_login_service/d' /etc/ly/config.ini
 
-# Hyprland: install Ion's bundled config if installed
-if pacman -Q hyprland &>/dev/null; then
-    mkdir -p /etc/skel/.config/hypr
-    cp /etc/calamares/hyprland.conf /etc/skel/.config/hypr/hyprland.conf
 
-    # Copy to existing user home directories (users module runs before shellprocess)
-    for userdir in /home/*/; do
-        username=$(basename "$userdir")
-        if id "$username" &>/dev/null; then
-            mkdir -p "${userdir}.config/hypr"
-            cp -n /etc/skel/.config/hypr/hyprland.conf "${userdir}.config/hypr/hyprland.conf"
-            chown -R "$username:$username" "${userdir}.config/hypr"
-        fi
-    done
-fi
+# ── Hyprland config ───────────────────────────────────────────
+mkdir -p /etc/skel/.config/hypr
+cp /etc/calamares/hyprland.conf /etc/skel/.config/hypr/hyprland.conf
 
-# Neovim: set up LazyVim starter if neovim is installed
+# Copy to existing user home directories (users module runs before shellprocess)
+for userdir in /home/*/; do
+    username=$(basename "$userdir")
+    if id "$username" &>/dev/null; then
+        mkdir -p "${userdir}.config/hypr"
+        cp /etc/skel/.config/hypr/hyprland.conf "${userdir}.config/hypr/hyprland.conf"
+        chown -R "$username:$username" "${userdir}.config/hypr"
+    fi
+done
+
+# ── Neovim: set up LazyVim starter if installed ───────────────
 if pacman -Q neovim &>/dev/null; then
     git clone https://github.com/LazyVim/starter.git /etc/skel/.config/nvim 2>/dev/null || true
-    # Copy to existing user home directories (users module runs before shellprocess)
     for userdir in /home/*/; do
         username=$(basename "$userdir")
         if id "$username" &>/dev/null; then
@@ -104,6 +93,7 @@ if pacman -Q neovim &>/dev/null; then
     done
 fi
 
+# ── Clean up live-only artifacts ──────────────────────────────
 # Remove liveuser setup service
 rm -f /etc/systemd/system/liveuser-setup.service
 rm -f /etc/systemd/system/multi-user.target.wants/liveuser-setup.service
@@ -111,13 +101,6 @@ rm -f /etc/systemd/system/multi-user.target.wants/liveuser-setup.service
 # Remove Calamares autostart and desktop entry
 rm -f /etc/xdg/autostart/ion-install-gui.desktop
 rm -f /usr/share/applications/ion-install-gui.desktop
-
-# Restore GNOME welcome screen (masked on live ISO)
-rm -f /etc/xdg/autostart/gnome-initial-setup-first-login.desktop
-rm -f /etc/xdg/autostart/gnome-initial-setup-copy-worker.desktop
-rm -f /usr/local/bin/gnome-tour
-rm -f /etc/pacman.d/hooks/disable-gnome-tour.hook
-cp /etc/calamares/org.gnome.Tour.desktop.orig /usr/share/applications/org.gnome.Tour.desktop 2>/dev/null || true
 
 # Remove Calamares and its configs
 rm -rf /etc/calamares
@@ -132,9 +115,3 @@ rm -f /etc/systemd/system/systemd-firstboot.service
 
 # Remove live ISO bash profile message
 rm -f /root/.bash_profile
-
-# Remove live-only GNOME customizations
-rm -f /etc/dconf/db/local.d/01-live-iso
-rm -f /etc/dconf/profile/user
-rm -f /etc/pacman.d/hooks/compile-dconf.hook
-dconf update 2>/dev/null || true

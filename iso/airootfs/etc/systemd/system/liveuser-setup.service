@@ -1,14 +1,13 @@
 [Unit]
 Description=Create live session user
-Before=gdm.service display-manager.service
+Before=ly@tty2.service display-manager.service
 After=systemd-sysusers.service
 
 [Service]
 Type=oneshot
 RemainAfterExit=yes
-ExecStart=/usr/sbin/useradd -m -G wheel -s /bin/bash liveuser
-ExecStart=/usr/bin/passwd -d liveuser
-ExecStart=/bin/bash -c 'mkdir -p /home/liveuser/.config && touch /home/liveuser/.config/gnome-initial-setup-done && chown -R liveuser:liveuser /home/liveuser/.config'
+ExecStart=/usr/sbin/useradd -m -G wheel,video,render -s /bin/bash liveuser
+ExecStart=/bin/bash -c 'echo "liveuser:live" | chpasswd'
 
 [Install]
 WantedBy=multi-user.target

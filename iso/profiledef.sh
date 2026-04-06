@@ -22,5 +22,5 @@ file_permissions=(
   ["/usr/local/bin/ion-install"]="0:0:755"
   ["/root/.bash_profile"]="0:0:644"
   ["/etc/calamares/scripts/fix-initramfs.sh"]="0:0:755"
-  ["/usr/local/bin/gnome-tour"]="0:0:755"
+  ["/etc/skel/.config/hypr"]="0:0:755"
 )

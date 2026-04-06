@@ -1,6 +1,0 @@
-[Desktop Entry]
-Type=Application
-Name=Disabled on Live ISO
-Exec=/bin/true
-Hidden=true
-NoDisplay=true

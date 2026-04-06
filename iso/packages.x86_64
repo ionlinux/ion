@@ -27,6 +27,7 @@ openssh
 
 # Utilities
 paru
+neovim
 fastfetch
 pv
 sudo
@@ -41,19 +42,31 @@ man-pages
 less
 which
 
-# Desktop (live ISO)
-gnome
-gnome-tweaks
-gdm
+# Desktop
+hyprland
+uwsm
+dbus-broker-units
+xdg-desktop-portal-hyprland
+kitty
+thunar
+waybar
+wofi
+dunst
+grim
+slurp
+brightnessctl
+pipewire
+wireplumber
+polkit-gnome
+nwg-look
+waypaper-git
+awww
+ly
 
 # Hardware
 usbutils
 pciutils
 spice-vdagent
-
-# Hyprland extras
-nwg-look
-waypaper-git
 
 # Installer
 arch-install-scripts
