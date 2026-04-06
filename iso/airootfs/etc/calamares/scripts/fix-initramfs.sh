@@ -70,6 +70,14 @@ elif pacman -Q gdm &>/dev/null; then
     systemctl enable gdm
 fi
 
+# Hyprland: create a default config if installed and no config exists
+if pacman -Q hyprland &>/dev/null; then
+    mkdir -p /etc/skel/.config/hypr
+    if [[ ! -f /etc/skel/.config/hypr/hyprland.conf ]]; then
+        cp /usr/share/hyprland/hyprland.conf /etc/skel/.config/hypr/hyprland.conf 2>/dev/null || true
+    fi
+fi
+
 # Remove liveuser setup service
 rm -f /etc/systemd/system/liveuser-setup.service
 rm -f /etc/systemd/system/multi-user.target.wants/liveuser-setup.service
