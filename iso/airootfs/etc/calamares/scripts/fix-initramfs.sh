@@ -62,7 +62,11 @@ rm -f /etc/sudoers.d/liveuser
 rm -f /etc/gdm/custom.conf
 
 # Enable the correct display manager and remove the unused DE
-if pacman -Q sddm &>/dev/null; then
+if pacman -Q ly &>/dev/null; then
+    systemctl disable gdm 2>/dev/null || true
+    systemctl enable ly@tty2
+    pacman -Rns --noconfirm gnome gnome-tweaks gdm 2>/dev/null || true
+elif pacman -Q sddm &>/dev/null; then
     systemctl disable gdm 2>/dev/null || true
     systemctl enable sddm
     pacman -Rns --noconfirm gnome gnome-tweaks gdm 2>/dev/null || true
