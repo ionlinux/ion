@@ -4,6 +4,12 @@ import calamares.slideshow 1.0
 Presentation {
     id: presentation
 
+    Rectangle {
+        anchors.fill: parent
+        color: "#1a1a2e"
+        z: -1
+    }
+
     Slide {
         Rectangle {
             anchors.fill: parent
