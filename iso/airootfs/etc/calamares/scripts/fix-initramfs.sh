@@ -82,6 +82,20 @@ if pacman -Q hyprland &>/dev/null; then
     fi
 fi
 
+# Neovim: set up LazyVim starter if neovim is installed
+if pacman -Q neovim &>/dev/null; then
+    git clone https://github.com/LazyVim/starter.git /etc/skel/.config/nvim 2>/dev/null || true
+    # Copy to existing user home directories (users module runs before shellprocess)
+    for userdir in /home/*/; do
+        username=$(basename "$userdir")
+        if id "$username" &>/dev/null; then
+            mkdir -p "${userdir}.config/nvim"
+            cp -rn /etc/skel/.config/nvim/. "${userdir}.config/nvim/"
+            chown -R "$username:$username" "${userdir}.config"
+        fi
+    done
+fi
+
 # Remove liveuser setup service
 rm -f /etc/systemd/system/liveuser-setup.service
 rm -f /etc/systemd/system/multi-user.target.wants/liveuser-setup.service
