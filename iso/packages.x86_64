@@ -51,7 +51,8 @@ usbutils
 pciutils
 spice-vdagent
 
-# Hyprland extras (from local repo)
+# Hyprland extras
+nwg-look
 waypaper-git
 
 # Installer
