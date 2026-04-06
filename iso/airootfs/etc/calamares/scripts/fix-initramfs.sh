@@ -76,6 +76,7 @@ for userdir in /home/*/; do
     if id "$username" &>/dev/null; then
         mkdir -p "${userdir}.config/hypr"
         cp /etc/skel/.config/hypr/hyprland.conf "${userdir}.config/hypr/hyprland.conf"
+        cp /etc/skel/.config/hypr/hyprlock.conf "${userdir}.config/hypr/hyprlock.conf"
         chown -R "$username:$username" "${userdir}.config/hypr"
     fi
 done
