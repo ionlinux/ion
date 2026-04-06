@@ -24,11 +24,12 @@ mkdir -p "${WORK_DIR}" "${OUT_DIR}"
 # Build calamares first if the repo doesn't exist yet
 REPO_DIR="${OUT_DIR}/repo"
 if [[ ! -d "$REPO_DIR" || ! -f "$REPO_DIR/ion-local.db.tar.gz" ]]; then
-  echo "==> Local repo not found — building Calamares first..."
+  echo "==> Local repo not found — building AUR packages first..."
   # Ensure out/repo is writable by the unprivileged user for makepkg
   mkdir -p "$REPO_DIR"
   chown "${SUDO_USER:-nobody}:${SUDO_USER:-nobody}" "$REPO_DIR"
   sudo -u "${SUDO_USER:-nobody}" "${SCRIPT_DIR}/build-calamares.sh"
+  sudo -u "${SUDO_USER:-nobody}" "${SCRIPT_DIR}/build-paru.sh"
 fi
 
 echo "==> Copying local repo to /tmp/ion-repo..."

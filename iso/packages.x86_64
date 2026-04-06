@@ -26,6 +26,7 @@ dhcpcd
 openssh
 
 # Utilities
+paru
 fastfetch
 pv
 sudo
