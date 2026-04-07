@@ -30,7 +30,7 @@ build_aur_packages() {
   chown "${SUDO_USER:-nobody}:${SUDO_USER:-nobody}" "$REPO_DIR"
 
   local need_build=false
-  for pkg in calamares-git paru waypaper-git wlogout; do
+  for pkg in calamares-git paru waypaper-git wlogout sours-icon-theme-git sweet-gtk-theme; do
     if ! ls "$REPO_DIR"/${pkg}-*.pkg.tar.zst &>/dev/null; then
       need_build=true
       break
@@ -43,6 +43,8 @@ build_aur_packages() {
     ls "$REPO_DIR"/paru-*.pkg.tar.zst &>/dev/null          || sudo -u "${SUDO_USER:-nobody}" "${SCRIPT_DIR}/build-paru.sh"
     ls "$REPO_DIR"/waypaper-git-*.pkg.tar.zst &>/dev/null   || sudo -u "${SUDO_USER:-nobody}" "${SCRIPT_DIR}/build-waypaper.sh"
     ls "$REPO_DIR"/wlogout-*.pkg.tar.zst &>/dev/null        || sudo -u "${SUDO_USER:-nobody}" "${SCRIPT_DIR}/build-wlogout.sh"
+    ls "$REPO_DIR"/sours-icon-theme-git-*.pkg.tar.zst &>/dev/null || sudo -u "${SUDO_USER:-nobody}" "${SCRIPT_DIR}/build-themes.sh"
+    ls "$REPO_DIR"/sweet-gtk-theme-*.pkg.tar.zst &>/dev/null      || sudo -u "${SUDO_USER:-nobody}" "${SCRIPT_DIR}/build-themes.sh"
   fi
 }
 build_aur_packages

@@ -1,0 +1,26 @@
+# Maintainer: Ion Linux <packages@ionlinux.org>
+
+pkgname=sours-icon-theme-git
+pkgver=r80.a7027ca
+pkgrel=1
+pkgdesc="Sours icon theme — tasty gradients, rounded lines, and color coordination"
+arch=(any)
+url="https://github.com/tully-t/Sours"
+license=('GPL3')
+depends=('gtk-update-icon-cache')
+makedepends=('git')
+options=(!strip !emptydirs)
+source=("$pkgname::git+https://github.com/tully-t/Sours.git")
+sha256sums=('SKIP')
+
+pkgver() {
+	cd "$pkgname"
+	printf "r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short=7 HEAD)"
+}
+
+package() {
+	cd "$pkgname/Sours"
+	rm -f icon-theme.cache
+	install -d "$pkgdir/usr/share/icons"
+	cp -r ./ "$pkgdir/usr/share/icons/Sours"
+}

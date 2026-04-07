@@ -1,0 +1,52 @@
+# Maintainer: Ion Linux <packages@ionlinux.org>
+
+pkgname=sweet-gtk-theme
+_pkgname=Sweet-Ambar-Blue-Dark
+pkgver=r497.b75b31c
+pkgrel=1
+pkgdesc="Sweet Ambar Blue Dark — colorful GTK theme"
+arch=(any)
+url="https://github.com/EliverLara/Sweet"
+license=('GPL3')
+makedepends=('git')
+source=("$pkgname::git+https://github.com/EliverLara/Sweet.git#branch=Ambar-Blue-Dark")
+sha256sums=('SKIP')
+
+pkgver() {
+	cd "$pkgname"
+	printf "r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short=7 HEAD)"
+}
+
+prepare() {
+	cd "$pkgname"
+	find . -type f -name "*.scss" -delete
+	rm -fr xfwm4/assets xfwm4/render_assets.fish
+}
+
+package() {
+	cd "$pkgname"
+
+	install -Dm644 -t "${pkgdir}/usr/share/themes/$_pkgname" {LICENSE,README.md,index.theme}
+	install -Dm644 -t "${pkgdir}/usr/share/themes/$_pkgname/assets" assets/*
+
+	# Cinnamon
+	cp -r cinnamon "${pkgdir}/usr/share/themes/$_pkgname/"
+
+	# GNOME Shell
+	install -Dm644 -t "${pkgdir}/usr/share/themes/$_pkgname/gnome-shell" gnome-shell/gnome-shell.css
+	install -Dm644 -t "${pkgdir}/usr/share/themes/$_pkgname/gnome-shell/assets" gnome-shell/assets/*
+
+	# GTK2
+	install -Dm644 -t "${pkgdir}/usr/share/themes/$_pkgname/gtk-2.0" gtk-2.0/{gtkrc,main.rc}
+	install -Dm644 -t "${pkgdir}/usr/share/themes/$_pkgname/gtk-2.0/apps" gtk-2.0/apps/*
+	install -Dm644 -t "${pkgdir}/usr/share/themes/$_pkgname/gtk-2.0/assets" gtk-2.0/assets/*
+
+	# GTK3
+	install -Dm644 -t "${pkgdir}/usr/share/themes/$_pkgname/gtk-3.0" gtk-3.0/{gtk-dark.css,gtk.css,thumbnail.png}
+
+	# GTK4
+	install -Dm644 -t "${pkgdir}/usr/share/themes/$_pkgname/gtk-4.0" gtk-4.0/{gtk-dark.css,gtk.css,thumbnail.png}
+
+	# Metacity
+	install -Dm644 -t "${pkgdir}/usr/share/themes/$_pkgname/metacity-1" metacity-1/*
+}

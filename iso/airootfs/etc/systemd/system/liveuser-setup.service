@@ -8,6 +8,8 @@ Type=oneshot
 RemainAfterExit=yes
 ExecStart=/usr/sbin/useradd -m -G wheel,video,render -s /bin/bash liveuser
 ExecStart=/bin/bash -c 'echo "liveuser:live" | chpasswd'
+ExecStart=/bin/bash -c 'sudo -u liveuser dbus-launch gsettings set org.gnome.desktop.interface icon-theme "Sours"'
+ExecStart=/bin/bash -c 'sudo -u liveuser dbus-launch gsettings set org.gnome.desktop.interface gtk-theme "Sweet-Ambar-Blue-Dark"'
 
 [Install]
 WantedBy=multi-user.target
