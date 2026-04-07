@@ -74,6 +74,15 @@ systemctl enable ly@tty2
 sed -i '/^auto_login_user/d; /^auto_login_session/d; /^auto_login_service/d' /etc/ly/config.ini
 
 
+# ── Set zsh as default shell for all users ───────────────────
+chsh -s /bin/zsh root
+for userdir in /home/*/; do
+    username=$(basename "$userdir")
+    if id "$username" &>/dev/null; then
+        chsh -s /bin/zsh "$username"
+    fi
+done
+
 # ── Hyprland config ───────────────────────────────────────────
 mkdir -p /etc/skel/.config/hypr
 cp /etc/calamares/hyprland.conf /etc/skel/.config/hypr/hyprland.conf
@@ -168,6 +177,16 @@ if [[ -d /etc/skel/.config/nvim ]]; then
         fi
     done
 fi
+
+# ── Oh My Zsh + .zshrc ───────────────────────────────────────
+for userdir in /home/*/; do
+    username=$(basename "$userdir")
+    if id "$username" &>/dev/null; then
+        cp -rn /etc/skel/.oh-my-zsh "${userdir}.oh-my-zsh"
+        cp -n /etc/skel/.zshrc "${userdir}.zshrc"
+        chown -R "$username:$username" "${userdir}.oh-my-zsh" "${userdir}.zshrc"
+    fi
+done
 
 # ── Clean up live-only artifacts ──────────────────────────────
 # Remove liveuser setup service

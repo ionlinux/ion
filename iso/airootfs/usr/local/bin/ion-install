@@ -369,7 +369,7 @@ options root=UUID=${ROOT_UUID} rw
 EOF
 
 # User
-useradd -m -G wheel -s /bin/bash ${USERNAME}
+useradd -m -G wheel -s /bin/zsh ${USERNAME}
 echo "${USERNAME}:${USER_PASS}" | chpasswd
 echo "root:${ROOT_PASS}" | chpasswd
 

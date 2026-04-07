@@ -41,6 +41,11 @@ man-db
 man-pages
 less
 which
+zsh
+bash-completion
+zsh-completions
+zsh-autosuggestions
+zsh-syntax-highlighting
 
 # Desktop
 firefox
