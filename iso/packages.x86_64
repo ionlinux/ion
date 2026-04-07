@@ -66,6 +66,12 @@ wlogout
 awww
 ly
 
+# NVIDIA
+nvidia-open
+nvidia-utils
+nvidia-settings
+egl-wayland
+
 # Hardware
 usbutils
 pciutils

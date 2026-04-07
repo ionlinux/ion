@@ -5,6 +5,14 @@ set -e
 # ── Fix initramfs ──────────────────────────────────────────────
 rm -f /etc/mkinitcpio.conf.d/archiso.conf
 
+# ── NVIDIA: configure mkinitcpio if drivers are installed ─────
+if pacman -Q nvidia-open &>/dev/null; then
+    # Add NVIDIA modules to initramfs
+    sed -i 's/^MODULES=(\(.*\))/MODULES=(\1 nvidia nvidia_modeset nvidia_uvm nvidia_drm)/' /etc/mkinitcpio.conf
+    # Remove kms hook (conflicts with NVIDIA early loading)
+    sed -i 's/ kms//' /etc/mkinitcpio.conf
+fi
+
 KVER=$(ls /usr/lib/modules/ | head -1)
 
 cat > /etc/mkinitcpio.d/linux.preset << PRESET
