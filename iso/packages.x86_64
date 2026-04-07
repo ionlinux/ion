@@ -58,6 +58,7 @@ grim
 slurp
 brightnessctl
 pipewire
+pipewire-pulse
 wireplumber
 polkit-gnome
 matugen
