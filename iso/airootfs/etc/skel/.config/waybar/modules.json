@@ -1,6 +1,6 @@
 {
     "custom/appmenu": {
-        "format": "",
+        "format": "",
         "tooltip-format": "Apps",
         "on-click": "wofi --show drun"
     },
@@ -14,13 +14,13 @@
     },
 
     "custom/quicklink_terminal": {
-        "format": "",
+        "format": "",
         "on-click": "kitty",
         "tooltip-format": "Kitty"
     },
 
     "custom/quicklink_filemanager": {
-        "format": "",
+        "format": "",
         "on-click": "thunar",
         "tooltip-format": "Thunar"
     },
@@ -34,36 +34,38 @@
     },
 
     "pulseaudio": {
-        "format": "{icon}  {volume}%",
-        "format-bluetooth": "{volume}% {icon} {format_source}",
-        "format-bluetooth-muted": " {icon} {format_source}",
-        "format-muted": " {format_source}",
-        "format-source": "{volume}% ",
-        "format-source-muted": "",
-        "format-icons": {
-            "headphone": " ",
-            "hands-free": " ",
-            "headset": " ",
-            "phone": " ",
-            "portable": " ",
-            "car": " ",
-            "default": ["", "", ""]
-        },
-        "on-click": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"
+      "format": "{icon}  {volume}%",
+      "format-bluetooth": "{volume}% {icon} {format_source}",
+      "format-bluetooth-muted": " {icon} {format_source}",
+      "format-muted": " {format_source}",
+      "format-source": "{volume}% ",
+      "format-source-muted": "",
+      "format-icons": {
+        "headphone": " ",
+        "hands-free": " ",
+        "headset": " ",
+        "phone": " ",
+        "portable": " ",
+        "car": " ",
+        "default": [
+          "",
+          "",
+          ""
+        ]
+      },
+      "on-click": "pavucontrol -t 3",
     },
 
     "network": {
         "format-wifi": "  {essid}",
         "format-ethernet": "  {ifname}",
         "format-disconnected": "  disconnected",
-        "tooltip-format": "{ipaddr}/{cidr}"
+        "tooltip-format": "{ipaddr}/{cidr}",
+        "on-click": "nm-connection-manager"
     },
 
     "bluetooth": {
         "on-click": "blueman-manager",
-        "format-on": "",
-        "format-off": "",
-        "format-connected": " {device_alias}"
     },
 
     "battery": {
@@ -110,7 +112,7 @@
 
     "clock": {
         "format": "{:%A  %m/%d/%Y  %B  %I:%M %p}",
-        "tooltip-format": "<big>{:%Y %B \t week: %V }</big>\n<tt>{calendar}</tt>"
+        "tooltip-format": "<big>{:%Y %B \t week: %V }</big>\n<tt>{calendar}</tt>",
     },
 
     "custom/power": {
@@ -118,8 +120,4 @@
         "on-click": "wlogout",
         "tooltip-format": "Power Menu"
     },
-
-    "custom/empty": {
-        "format": ""
-    }
 }

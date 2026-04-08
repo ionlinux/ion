@@ -21,6 +21,7 @@ xfsprogs
 
 # Networking
 networkmanager
+nm-connection-editor
 iwd
 dhcpcd
 openssh
@@ -74,6 +75,12 @@ waypaper-git
 wlogout
 awww
 ly
+
+# Fonts
+ttf-fira-sans
+ttf-firacode-nerd
+otf-font-awesome
+ttf-material-icons
 
 # NVIDIA
 nvidia-open
