@@ -1,0 +1,6 @@
+[org/gnome/desktop/interface]
+gtk-theme='Sweet-Ambar-Blue-Dark'
+icon-theme='Sours'
+color-scheme='prefer-dark'
+cursor-theme='Adwaita'
+cursor-size=24

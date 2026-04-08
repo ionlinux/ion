@@ -99,6 +99,9 @@ for userdir in /home/*/; do
 done
 
 # ── GTK dark theme ────────────────────────────────────────────
+# Compile system-wide dconf defaults (sets gtk-theme, icon-theme for all users)
+dconf update
+
 for userdir in /home/*/; do
     username=$(basename "$userdir")
     if id "$username" &>/dev/null; then
