@@ -66,6 +66,7 @@ brightnessctl
 pipewire
 pipewire-pulse
 wireplumber
+pavucontrol
 polkit-gnome
 matugen
 nwg-look
