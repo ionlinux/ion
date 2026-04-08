@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 48 48"
+     fill="none" stroke="#7dd8f0" stroke-width="2.2"
+     stroke-linecap="round" stroke-linejoin="round">
+  <!-- snowflake: 3 crossed lines with small branches -->
+  <line x1="24" y1="6"  x2="24" y2="42"/>
+  <line x1="8.4" y1="15" x2="39.6" y2="33"/>
+  <line x1="8.4" y1="33" x2="39.6" y2="15"/>
+  <!-- top/bottom branches -->
+  <polyline points="20,10.5 24,6 28,10.5"/>
+  <polyline points="20,37.5 24,42 28,37.5"/>
+  <!-- upper-right / lower-left branches -->
+  <polyline points="37,12.5 39.6,15 36,18"/>
+  <polyline points="12,30 8.4,33 11,36"/>
+  <!-- upper-left / lower-right branches -->
+  <polyline points="11,12 8.4,15 12,18"/>
+  <polyline points="36,30 39.6,33 37,35.5"/>
+</svg>

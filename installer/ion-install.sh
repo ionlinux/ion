@@ -271,7 +271,7 @@ echo "KEYMAP=${KEYMAP}" > /mnt/etc/vconsole.conf
 
 # ── Base install ────────────────────────────────────────────────
 echo "==> Installing base system..."
-pacstrap -K /mnt base linux linux-firmware networkmanager efibootmgr sudo nano neovim git fastfetch pavucontrol \
+pacstrap -K /mnt base linux linux-firmware networkmanager efibootmgr sudo nano neovim git fastfetch pavucontrol blueman \
   $DE_PACKAGES
 
 # ── Fstab ───────────────────────────────────────────────────────

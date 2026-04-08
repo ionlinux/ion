@@ -1,0 +1,88 @@
+/* ── Underwater Blue Theme for wlogout ── */
+
+/* Transparent background */
+window {
+    background-color: transparent;
+}
+
+/* ── Shared button style ── */
+button {
+    background-color: rgba(8, 32, 65, 0.90);
+    background-repeat: no-repeat;
+    background-position: center 30%;
+    background-size: 128px 128px;
+
+    border: 2px solid rgba(90, 175, 220, 0.18);
+    border-radius: 26px;
+
+    box-shadow:
+        0 0 24px rgba(0, 130, 195, 0.10),
+        0 4px 16px rgba(0, 0, 0, 0.30);
+
+    color: rgba(170, 215, 240, 0.90);
+    font-family: "Inter", "Cantarell", "Noto Sans", sans-serif;
+    font-size: 24px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+
+    margin: 8px;
+    padding: 8px;
+    min-width: 100px;
+    min-height: 100px;
+
+    transition: all 80ms ease-out;
+}
+
+button:hover {
+    background-color: rgba(12, 50, 95, 0.60);
+    border-color: rgba(100, 200, 255, 0.40);
+    box-shadow:
+        0 0 36px rgba(0, 170, 240, 0.25),
+        0 0 72px rgba(0, 130, 200, 0.10),
+        0 6px 20px rgba(0, 0, 0, 0.25);
+    color: rgba(210, 242, 255, 1.0);
+}
+
+button:focus {
+    background-color: rgba(12, 50, 95, 0.60);
+    border-color: rgba(100, 200, 255, 0.45);
+    box-shadow:
+        0 0 40px rgba(0, 175, 245, 0.30),
+        0 0 80px rgba(0, 135, 210, 0.12),
+        0 6px 20px rgba(0, 0, 0, 0.25);
+    color: rgba(210, 242, 255, 1.0);
+}
+
+button:active {
+    background-color: rgba(18, 65, 120, 0.70);
+    border-color: rgba(120, 215, 255, 0.55);
+    box-shadow:
+        0 0 48px rgba(0, 195, 255, 0.40),
+        0 0 96px rgba(0, 150, 225, 0.18);
+    color: #e0f6ff;
+}
+
+/* ── Per-button icons ── */
+#lock {
+    background-image: image(url("icons/lock.svg"));
+}
+
+#logout {
+    background-image: image(url("icons/logout.svg"));
+}
+
+#suspend {
+    background-image: image(url("icons/suspend.svg"));
+}
+
+#hibernate {
+    background-image: image(url("icons/hibernate.svg"));
+}
+
+#shutdown {
+    background-image: image(url("icons/shutdown.svg"));
+}
+
+#reboot {
+    background-image: image(url("icons/reboot.svg"));
+}
