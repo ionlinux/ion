@@ -66,6 +66,11 @@ QPushButton:pressed {
     background-color: #006699;
 }
 
+QPushButton:disabled {
+    background-color: #3a3a55;
+    color: #666666;
+}
+
 QPushButton#debugButton {
     background-color: transparent;
     color: #666;
