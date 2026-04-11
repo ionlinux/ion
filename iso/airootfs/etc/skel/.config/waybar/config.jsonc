@@ -30,6 +30,7 @@
         "tray",
         "custom/wallpaper",
         "clock",
+        "custom/notification",
         "custom/power"
     ]
 }

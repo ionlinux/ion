@@ -1,0 +1,170 @@
+/*
+ * SwayNC Style — Ion Linux
+ * Dark theme to match waybar / Hyprland aesthetics
+ */
+
+* {
+    font-family: "Fira Sans Semibold", "FiraCode Nerd Font", sans-serif;
+    font-weight: bold;
+}
+
+.control-center .notification-row:focus,
+.control-center .notification-row:hover {
+    opacity: 1;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.notification-row {
+    outline: none;
+    margin: 10px;
+    padding: 0;
+}
+
+.notification {
+    background: rgba(0, 0, 0, 0.7);
+    padding: 0;
+    margin: 0px 10px;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.notification-content {
+    background: transparent;
+    padding: 10px;
+    border-radius: 10px;
+    margin: 0;
+}
+
+.close-button {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    text-shadow: none;
+    padding: 0;
+    border-radius: 100%;
+    margin-top: 10px;
+    margin-right: 10px;
+}
+
+.close-button:hover {
+    box-shadow: none;
+    background: rgba(255, 255, 255, 0.2);
+    transition: all 0.15s ease-in-out;
+}
+
+.notification-default-action,
+.notification-action {
+    padding: 4px;
+    margin: 0;
+    box-shadow: none;
+    background: transparent;
+    border: none;
+    color: white;
+}
+
+.notification-default-action:hover,
+.notification-action:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.notification-default-action {
+    border-radius: 10px;
+}
+
+.notification-action {
+    border-radius: 10px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.summary {
+    font-size: 16px;
+    font-weight: bold;
+    background: transparent;
+    color: white;
+    text-shadow: none;
+}
+
+.time {
+    font-size: 16px;
+    font-weight: bold;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.5);
+    text-shadow: none;
+    margin-right: 18px;
+}
+
+.body {
+    font-size: 15px;
+    font-weight: normal;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.8);
+    text-shadow: none;
+}
+
+.control-center {
+    background: rgba(0, 0, 0, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+}
+
+.control-center-list {
+    background: transparent;
+}
+
+.control-center-list-placeholder {
+    opacity: 0.5;
+}
+
+.floating-notifications {
+    background: transparent;
+}
+
+.blank-window {
+    background: alpha(black, 0.1);
+}
+
+.widget-title {
+    color: white;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 5px 10px;
+    margin: 10px 10px 5px 10px;
+    font-size: 1.5rem;
+    border-radius: 10px;
+}
+
+.widget-title > button {
+    font-size: initial;
+    color: white;
+    text-shadow: none;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: none;
+    border-radius: 10px;
+}
+
+.widget-title > button:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.widget-dnd {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 5px 10px;
+    margin: 5px 10px 10px 10px;
+    border-radius: 10px;
+    font-size: large;
+    color: white;
+}
+
+.widget-dnd > switch {
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.widget-dnd > switch:checked {
+    background: rgba(51, 204, 255, 0.4);
+}
+
+.widget-dnd > switch slider {
+    background: white;
+    border-radius: 10px;
+}

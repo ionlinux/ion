@@ -38,6 +38,7 @@ git
 wget
 curl
 htop
+btop
 man-db
 man-pages
 less
@@ -59,9 +60,10 @@ kitty
 thunar
 waybar
 wofi
-dunst
+swaync
 grim
 slurp
+hyprshot
 brightnessctl
 pipewire
 pipewire-pulse
