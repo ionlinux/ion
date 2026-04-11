@@ -2,7 +2,7 @@
     "custom/appmenu": {
         "format": "",
         "tooltip-format": "Apps",
-        "on-click": "wofi --show drun"
+        "on-click": "walker"
     },
 
     "hyprland/workspaces": {

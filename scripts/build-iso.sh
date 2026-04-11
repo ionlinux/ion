@@ -30,7 +30,7 @@ build_aur_packages() {
   chown "${SUDO_USER:-nobody}:${SUDO_USER:-nobody}" "$REPO_DIR"
 
   local need_build=false
-  for pkg in calamares-git paru waypaper-git wlogout sours-icon-theme-git sweet-gtk-theme bibata-cursor-theme-bin; do
+  for pkg in calamares-git paru waypaper-git wlogout sours-icon-theme-git sweet-gtk-theme bibata-cursor-theme-bin walker elephant elephant-desktopapplications; do
     if ! ls "$REPO_DIR"/${pkg}-*.pkg.tar.zst &>/dev/null; then
       need_build=true
       break
@@ -46,6 +46,9 @@ build_aur_packages() {
     ls "$REPO_DIR"/sours-icon-theme-git-*.pkg.tar.zst &>/dev/null || sudo -u "${SUDO_USER:-nobody}" "${SCRIPT_DIR}/build-themes.sh"
     ls "$REPO_DIR"/sweet-gtk-theme-*.pkg.tar.zst &>/dev/null      || sudo -u "${SUDO_USER:-nobody}" "${SCRIPT_DIR}/build-themes.sh"
     ls "$REPO_DIR"/bibata-cursor-theme-bin-*.pkg.tar.zst &>/dev/null || sudo -u "${SUDO_USER:-nobody}" "${SCRIPT_DIR}/build-bibata.sh"
+    ls "$REPO_DIR"/walker-*.pkg.tar.zst &>/dev/null                    || sudo -u "${SUDO_USER:-nobody}" "${SCRIPT_DIR}/build-walker.sh"
+    ls "$REPO_DIR"/elephant-*.pkg.tar.zst &>/dev/null                  || sudo -u "${SUDO_USER:-nobody}" "${SCRIPT_DIR}/build-elephant.sh"
+    ls "$REPO_DIR"/elephant-desktopapplications-*.pkg.tar.zst &>/dev/null || sudo -u "${SUDO_USER:-nobody}" "${SCRIPT_DIR}/build-elephant-desktopapplications.sh"
   fi
 }
 build_aur_packages
