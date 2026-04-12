@@ -1,0 +1,8 @@
+[Plymouth Theme]
+Name=Ion Linux
+Description=Ion Linux boot splash — logo on black background
+ModuleName=script
+
+[script]
+ImageDir=/usr/share/plymouth/themes/ion
+ScriptFile=/usr/share/plymouth/themes/ion/ion.script

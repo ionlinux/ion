@@ -5,6 +5,9 @@ set -e
 # ── Fix initramfs ──────────────────────────────────────────────
 rm -f /etc/mkinitcpio.conf.d/archiso.conf
 
+# ── Plymouth: add hook to initramfs ──────────────────────────
+sed -i 's/\(HOOKS=.*\)udev/\1udev plymouth/' /etc/mkinitcpio.conf
+
 # ── NVIDIA: configure mkinitcpio if drivers are installed ─────
 if pacman -Q nvidia-open &>/dev/null; then
     # Add NVIDIA modules to initramfs
@@ -58,7 +61,7 @@ cat > /boot/loader/entries/ion.conf << ENTRY
 title   Ion Linux
 linux   /vmlinuz-linux
 initrd  /initramfs-linux.img
-options ${ROOT_OPTS}
+options ${ROOT_OPTS} quiet splash
 ENTRY
 
 # ── Remove live-only configs ──────────────────────────────────

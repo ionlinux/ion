@@ -12,6 +12,7 @@ archlinux-keyring
 grub
 efibootmgr
 syslinux
+plymouth
 
 # Filesystem
 btrfs-progs
